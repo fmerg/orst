@@ -1,5 +1,6 @@
 
 \documentclass[10pt, psamsfonts, reqno]{amsart}
+% \documentclass{article}
 
 %-------Packages---------
 \usepackage{amssymb,amsfonts}
@@ -11,6 +12,7 @@
 \usepackage{appendix}
 \usepackage[noend]{algpseudocode}
 \usepackage{algorithm}
+%\usepackage[ruled,vlined,linesnumbered,resetcount,algo]{algorithm2e}
 \usepackage{caption}
 \usepackage{cryptocode}
 \usepackage{yfonts,amsmath,amssymb,amsfonts}
@@ -41,8 +43,10 @@
 % margins
 %\usepackage[left=3.95cm,right=3.95cm,bottom=3.95cm,top=3.95cm]{geometry}
 %\usepackage[a4paper,left=2.54cm,right=2.54cm,bottom=2.54cm,top=2.54cm]{geometry}
+%\usepackage[a4paper,left=3.8cm,right=3.8cm,bottom=3.8cm,top=3.8cm]{geometry}
 %\usepackage[a4paper,left=3.7cm,right=3.7cm,bottom=3.7cm,top=3.7cm]{geometry}
 %\usepackage[a4paper,left=3.6cm,right=3.6cm,bottom=3.6cm,top=3.6cm]{geometry}
+%\usepackage[a4paper,left=3.7cm,right=3.7cm,bottom=3.7cm,top=3.7cm]{geometry}
 %\usepackage[a4paper,left=3.4cm,right=3.4cm,bottom=3.4cm,top=3.4cm]{geometry}
 %\usepackage[a4paper,left=3.2cm,right=3.2cm,bottom=3.2cm,top=3.2cm]{geometry}
 
@@ -113,9 +117,6 @@
 \renewcommand\algorithmicthen{}
 \renewcommand\algorithmicdo{}
 
-
-\bibliographystyle{plain}
-
 %--------Meta Data: Fill in your info------
 % \title{Threshold Non-Interactive Zero Knowledge}
 % \title{Threshold Non-Interactive Zero-Knowledge Protocols}
@@ -126,23 +127,56 @@
 % \title{Non-Interactive Threshold Schnorr Identification}
 % \title{Distributed Strictly Non-Interactive\\ Schnorr Identification}
 
-\author{AUTHOR NAME}
+\author{Foteinos Mergoupis-Anagnou}
+%\author{Author Name}
 
 % \date{DEADLINES: Draft AUGUST 14 and Final version AUGUST 28, 2017}
 
 \begin{document}
 
 \begin{abstract}
-TODO native threshold protocol as much as the ordinary protocol
-TODO We propose a novel approach to threshold identification based
-on the Schnorr protocool.
-We provide evidence that the protocol has good chances to
-be secure
-%in the wild
-by demonstrating
-a formal security proof
-in the random oracle model
-under one-more discrete-logarithm (OMDL) hardness.
+Threshold zero-knowledge protocols
+have not been widely adopted,
+presumably due to the relevant network overhead,
+required infrastructure maintenance
+and limited interoperability chances.
+We propose an agile
+threshold identification scheme based
+on the Schnorr protocol,
+which is the native identification scheme
+in discrete-logarithm based settings.
+Given a Shamir $(n, t)$-shared secret $x$, the proposed protocol allows
+any $t^* \ge t$ (but no less) shareholders to collectively prove
+that their secret keys combine to $x$ in the sense of interpolation
+without revealing any information beyond that.
+The protocol is non-interactive \textit{and} non-reliant
+on the public shares.
+On the one side, the provers do not need to engage
+in any multi-party computation assisted by a trusted combiner;
+instead, they act independently and asynchronously,
+sending their proof packets to the verifier directly.
+On the other side, the verification operation
+contains no reference to the public shares,
+meaning that the received packets are verified against
+the group public key alone and that the verifier does not need to
+trust and register the individual members' identities.
+The protocol can be cheaply adopted in
+dynamic and unregulated environments,
+where no certrification processes or infrastructure support
+are available, and be seamlessly integrated
+with existing verifiers by means of pure software extension.
+No trusted setup is required beyond
+the minimum assumption that the key has been
+shared according to Shamir's secret sharing (or
+equivalent distributed key generation (DKG) protocol)
+and that the group public key has been advertised correctly;
+in particular, the protocol is intended to be
+secure against impersonation attacks
+in the plain public-key model.
+We provide evidence that this has good chances to
+hold true by giving a formal security proof
+in the random oracle model under the
+one-more discrete-logarithm hardness (OMDL) assumption.
 
 \end{abstract}
 
@@ -153,201 +187,192 @@ under one-more discrete-logarithm (OMDL) hardness.
 \section{Introduction}
 
 Distributing the prover of a zero-knowledge protocol
-is usually achieved my means of a trusted combiner.
+is usually achieved my means of a trusted combiner
+who acts as group proxy.
 The shareholders engage in some distributed computation
-in order to generate a uniform commitment
-and then use it to generate ordinary proofs
-for their local shares.
+in order to produce a uniform commitment,
+which they subsequently use in order to generate
+ordinary proofs for their local shares.
 After aggregating
-the respective proof packets,
-the combiner couples them into an ordinary proof
+the respective proof shares,
+the proxy combines them into an ordinary proof
 and forwards it to the verifier,
-who proceeds to verification like in the non-distributed case;
-in particular, the combined proof resides in the space of proofs
+who proceeds to verification like in the non-distributed case.
+That is, the combined proof resides in the space of proofs
 that could have been generated for the combined secret directly.
 The idea is similar to that of the
 Schnorr threshold signature scheme
-\ref{paper_stinson_strobl}.
-It has been elaborated in the proof-of-knowledge context
-by \ref{paper_threshold_zk},
-who apply it in order to distribute protocols as general as
-proving knowledge of the preimage of a homomorphism
-(cf. \cite{paper_homomorphism}).
+\cite{paper_stinson_strobl}
+and has been elaborated
+in the proof-of-knoweldge context by \cite{paper_threshold_zk},
+who apply it to distribute protocols as general as
+proving the preimage of a homomorphism \cite{paper_homomorphism}.
 
 The integration of such protocols
 is seamless on the verifier's side
-because it does not need
-to either trust or maintain the public keys
-of the shareholders.
-This convenience comes at significant cost on the prover's side.
+because the latter does not need
+to trust and register the shareholders' public keys.
+However, this convenience comes at significant cost on the prover's side.
 First and foremost, the distributed protocol
 is highly interactive even though its non-distributed
 counterpart may consist of a single communication step.
-This is because of the multi-party computation
+The multi-party computation
 for the uniform commitment,
 usually a distributed key generation (DKG) scheme,
-which introduces significant network overhead
-upon every protocol round
-while also relying on real-time communication
-and subtle security assumptions regarding the involved parties.
-Observe that delegating combination
+introduces significant network overhead upon every protocol round
+while also relying on subtle
+security assumptions regarding the involved parties.
+Note that delegating combination
 to the verifier's side makes no difference
-(apart from fewer trust assumptions)
+(except maybe for fewer trust assumptions)
 since the protocol would remain equally interactive.
 Techniques for reducing interactivity,
 e.g., pseudorandom secret sharing, do not scale beyond
 a limited number of involved provers and,
-most importantly, require coordination or
-some relevant infrastructure
-to be maintained and constantly available.
-While this may not be an issue
-for monitored operations with long-term impact in a regulated environment
+most importantly, require preprocessing
+along with the relevant infrastructure maintenance.
+While the above may not be an issue
+for operations with long-term impact
+in monitored and regulated environments
 (e.g., distributed signatures stored in a public ledger),
-it becomes prohibiting if the provers
+they become prohibiting if the provers
 are compelled to act unattendedly and asynchronously
-in the absence of infrastructure,
+in the wild,
 e.g., for the purpose of multi-factor authentication
-or when performing some joint IoT operation
+or when performing some joint IoT or network operation
 in order to rapidly release a sensitive action.
-We are primarily interested for situations of the latter kind.
+We are primarily interested for use cases of this kind.
 
-A relevant paradigm is that of threshold decryption,
+Another relevant paradigm is that of threshold decryption,
 which employs decoupled zero-knowledge proofs
 in order to detect maliciously fabricated partial decryptors.
 Given a ciphertext, the shareholders attach
-a Chaum-Pedersen proof to their respective decryptor,
-proving that this is securely bound to their secret share;
-after aggregating sufficiently many of these packets,
+a Chaum-Pedersen proof to their respective decryptor
+that bounds it securely to their respective share.
+After aggregating sufficiently many of these packets,
 the decrypting party reconstructs the combined decryptor
 only if the attached proofs verify against the respective
 public shares, i.e., decryption is not released
-unless all attached proofs are individually found to be valid.
-Since every Chaum-Pedersen proof
+unless all proofs are individually found to be valid.
+Since every proof
 includes a Schnorr proof for the respective shareholder's key,
-one can easily eliminate the encryption specific details
-in order to derive a threshold identification protocol.
+one could eliminate the encryption specific details
+in order to derive a pure identification protocol.
 
-A protocol of the above kind is non-interactive and requires
-no coordination or infrastructure on the provers' side,
+A protocol of this kind is non-interactive and requires
+no infrastructure or coordination on the provers' side,
 allowing the shareholders to act independently; however,
 it does require from the decrypting party (i.e., the verifier)
 to maintain the correct public shares
 in order to be able to individually verify the attached proofs.
 This evidently entails the need for a trusted multi-key setup
-in order to certify both the ownership of the public shares
-\textit{and} their compatibility (i.e., that they indeed
+that certifies both the ownership of the public shares
+and their compatibility (i.e., that they
 comprise a sharing of the group public key),
 otherwise the protocol remains susceptible
 to all sorts of rogue-key attacks.
-Observe that rogue-key attacks may not be a major concern
-for threshold decryption because
-proofs are verified against both the respective shares
+Note that rogue-key attacks may not be a major issue
+for threshold decryption because the attached
+proofs are verified against both the respective public shares
 and the given ciphertext; if the ciphertext has been generated
-by the encrypting party
-with respect to the correct group public key, a rogue key will
+with respect to the correct group public key,
+a shareholder's rogue key will
 most probably be detected. This is not so for the derived
 identification protocol,
 where the verification operation involves nothing
 beyond the registered public shares.
 In this case, security becomes
-entirely dependent on the multi-key setup
-and its generally intractable attack surface,
-which can only be analysed per use case.
-Even if a sufficiently encompassing multi-key setup
-could be designed and analysed with respect to
-a specific attack model, this does not guarantee
-its adoptability in the real world;
-any such setup is not straightforward to integrate with and,
-if adopted, it comes at the cost of restricted interoperability
+entirely dependent on the initial multi-key setup,
+which has a generally intractable attack surface
+and can only be analysed per use case.
+Even if an encompassing setup
+could be designed and analysed,
+this does not guarantee its adoptability;
+any such setup is not seamless to integrate with and,
+if adopted, it comes at the cost of limited interoperability
 and significant infrastructure extensions and maintenance.
-Evidently, it is completely useless
+It is completely useless
 in a flexible and unregulated identification setting,
 where no trust infrastructre can be assumed to be
 in place at all.
 
 \subsection{Contribution}\label{section_contribution}
-The above discussion shows
+The above discussion implies
 that non-reliance on the public shares
 and non-interactiveness on the provers' side appear to be
 diametrically opposed properties;
 eliminating infrastructure on one side
 requires its existence and maintenance on the other.
-We define an infrastructure-free
-Schnorr-based threshold identification protocol
-which achieves non-interactiveness
-and non-reliance on the public shares at once;
-as such, it becomes applicable in flexible and unregulated
-decentralized settings and can be cheaply adopted
+We propose an infrastucture-free
+Schnorr-based threshold identification scheme
+which achieves non-interactiveness \textit{and} non-reliance;
+as such, it is suitable for flexible identification
+settings and can be cheaply adopted
 in the following sense: (a) existing verifiers
 need only extend their software
 in order to support the distributed case,
-without adding infrastructure
-for trusting, registering and maintaining
-the shareholders' public keys (b) existing keys
-can be shared at the verifier's complete negligence.
-No trusted key setup is needed beyond
-the minimum assumption that some key has been
+without adding new infrastructure
+for trusting and registering
+public shares (b) existing keys
+can be shared at the verifiers' complete negligence.
+No trusted setup is required beyond
+the minimum assumption that a key has been
 shared amongst a group of shareholders according to some
-Shamir-based $(n,t)$-sharing (no matter how)
-and the group public key has been advertized
-in some ``trusted" fashion; in particular,
+Shamir-based scheme (no matter which)
+and that the combined public key has been advertised
+correctly; in particular,
 the protocol should be secure against
-impersonation attacks in the plain-public key model
-(cf. \cite{paper_bellare_musig}).
-We provide evidence that this has good chances to hold true
-by giving a formal security proof in the random oracle model
-under the one-more discrete-logarithm (OMDL)
-hardness assumption.
+impersonation attacks in the plain public-key model
+(\cite{paper_bellare_musig}).
+We provide evidence that this has good chances to be true
+by demonstrating a formal security proof in the random oracle model
+under the one-more discrete-logarithm hardness (OMDL) assumption.
 
 
 \subsection{Organization}\label{section_organization}
-In Section \ref{section_problem} we get a closer look
+In Section \ref{section_problem}, we get a closer look
 at distributed Schnorr identification
-and argue in detail why existing solutions fail to meet its needs
-in the real life, specifically with respect to
-unregulated and decentralized settings.
-In Section \ref{section_orst} we introduce the
-proposed threshold identification scheme,
-derive useful validity conditions and make
-some high-level security considerations,
+and argue in detail why certain solutions
+fail to meet its pragmatic needs,
+specifically with respect to
+unattended, unregulated and decentralized settings.
+In Section \ref{section_orst}, we introduce the
+proposed threshold identification scheme
+and make some high-level security considerations,
 including a key-recovery attack against
-its interactive counterpart (cf. Section \ref{section_key_recovery_attack}).
-In Section \ref{section_security_notions}
-we outline the general threat model regarding the
-security against impersonation attacks
-and define the relevant attack games.
-We do not care to formulate auxiliary notions
-for proof-of-knowledge schemes
+its interactive variance.
+In Section \ref{section_security_notions},
+we specify the threat model
+and derive the relevant attack games.
+We do not formulate auxiliary notions
+for zero-knowledge protocols
 (e.g., soundness, honest-verifier zero-knowledge,
 witness indistinguishability etc.)
 in the threshold setting,
-focusing instead directly
-on security against impersonation attacks;
-however, we do specify a restricted notion of extractability
+focusing directly on security against impersonation attacks;
+however, we do derive a restricted notion of extractability
 (in the sense of special soundness)
-in order to derive a reasonable attack model
+in order to specify a reasonable attack model
 under the OMDL hardness assumption.
 In Section \ref{section_security_proof} we present
-the formal security proof in the random oracle model;
-this is done by fork and extraction, using the
-key-recovery attack against the interactive protocol
-and the Local Forking Lemma.
-The formalism and main facts regarding Shamir's secret sharing
-are presented in Appendix \ref{section_shamir};
-a quick refresher on the ordinary Schnorr protocol
-can be found below.
+the formal security proof in the random oracle model,
+employing the above mentioned key-recovery attack.
+The formalism and main facts regarding Shamir's sharing
+are presented in Appendix \ref{section_shamir}
+and a quick refresher on the
+Schnorr protocol can be found below.
 
 \subsection{Schnorr protocol}\label{section_schnorr}
 
 \noindent
 Fix a cyclic group $\mathbb{G} = \langle g \rangle$ of order $q$.
-By secret key is meant a scalar $x \in \mathbb{Z}_q$,
+A secret key is a scalar $x \in \mathbb{Z}_q$,
 with the group element $y = g ^ x$
-being its public counterpart.
-Equivalently, $x = \log\hspace{1pt} y$,
+being its public counterpart;
+equivalently, $x = \log\hspace{1pt} y$,
 where the logarithm is taken with respect to the
 generator $g$ of the underlying group structure.
-\textit{Discrete-logarithm \textup{($\mathsf{DL}$)} hardness} for
+\textit{Discrete-logarithm hardness \textup{($\mathsf{DL}$)}} for
 the system under consideration
 is the assumption that computing the logarithm of
 a uniformly random element is infeasible
@@ -358,9 +383,6 @@ should correctly compute $x \leftarrow \log\hspace{1pt} y$
 with negligible chance of success,
 where negligibility is determined by
 the current level of disposable computational power.
-In more applied terms, it should be impossible to infer
-a truly random key from its public counterpart
-within reasonable time.
 Industrial public-key cryptography relies increasingly more
 on the plausibility of this assumption over
 carefully chosen groups, a trend that will
@@ -371,7 +393,7 @@ is a non-interactive zero-knowledge (NIZK) scheme,
 allowing the key holder of $y = g ^ x$
 to prove knowledge of $x$
 without revealing any information about the latter.
-Its interactive variance is a sigma protocol.
+Its original interactive variance \cite{paper_schnorr} is a sigma protocol.
 The prover samples $r \leftarrow_\$ \mathbb{Z}_q$,
 stores it for the current session
 and sends the commitment $u = g ^ r$ to the verifier.
@@ -405,18 +427,18 @@ across every bit of its output,
 so that assigning $c \leftarrow H(u)$
 becomes indistinguishable from sampling $c$ uniformly at random.
 The current mainstream formalizes this fact
-within the \textit{random oracle model} (ROM).
+within the random oracle model (ROM).
 
-The Schnorr protocol is an ``identification" scheme
+The Schnorr protocol is an identification scheme
 because it verifies the holder of a key
-against its public identity in a sound and complete fashion.
-Note that key semantics are not essential;
+against its public counterpart in a sound and complete fashion.
+Key semantics are not essential;
 the protocol identifies any procedure
 that ``sees" the secret logarithm of some given group element.
 It is namely a zero-knowledge (ZK) proof-of-knowledge primitive
 for the discrete logarithm and as such applicable in any context where this knowledge arises as crucial
 (e.g., in plain ElGamal encryption,
-where a proof for the involved randomness
+where a proof of randomness
 may be attached in order to derive a non-malleable ciphertext);
 most notably, it is the building block
 for proving knowledge of witnesses to arbitrary linear relations,
@@ -428,7 +450,7 @@ security against impersonation attacks
 amounts to the infeasibility of fabricating
 a proof that verifies against a group element
 without knowing its logarithm;
-in the proof-of-knowledge terminology,
+in the zero-knowledge setting,
 this is called witness extractability
 under discrete-logarithm hardness.
 The protocol becomes meaningful
@@ -446,18 +468,18 @@ cf. Theorem 2, \cite{paper_bellare_palacio}.}
 Suppose that some secret $x$
 with public counterpart $y$ is distributed as $x_1, \dots, x_n$
 among $n$ shareholders by means of Shamir's $(n, t)$-sharing
-or any equivalent distributed key generation (DKG)
+or equivalent distributed key generation (DKG)
 protocol. That is, it shouldn't matter if $x$ is shared by
-a dealer or is implicitly defined in a fully decentralized
+a dealer or is implicitly defined in a decentralized
 fashion without being locally reconstructible;
 it only suffices that the output of the
 distribution scheme is indistinguishable
-from that of Shamir's $(n, t)$-sharing.
-We are interested in a protocol that allows any
-$t^* \ge t$ (but no less) shareholders to collectively prove
+from that of Shamir's secret sharing.
+We are interested for a protocol that allows any
+$t^* \ge t$ (but no less) parties to collectively prove
 that they belong to the group represented by $y$
 in a zero-knowledge fashion. More accurately, involved shareholders
-should be able to prove that their individual shares
+should be able to prove that their shares
 combine to $x$ by means of Shamir's reconstruction formula
 (cf. Remark \ref{shamir_reconstruction})
 without revealing any information beyond that;
@@ -469,13 +491,13 @@ remains unable to fabricate a proof that verifies
 with non-negligible chances.
 We obviously ask for the protocol to be
 as less interactive as possible;
-in the ideal case, involved shareholders should not need to
-engage in any communication rounds, performing instead single and
+in the ideal case, involved provers should not need to
+engage in any communication rounds, performing single and
 independent requests to the verifier.
 
 There is a seemingly trivial solution to this problem
 involving the public keys
-$y_i = g ^ {x_i},\ 1 \le i \le n$
+$y_i = g ^ {x_i},\hspace{2pt} 1 \le i \le n,$
 of the shareholders.
 Let $Q \subset \{1, \dots, n\}$
 be a coalition of shareholders that engage in
@@ -494,9 +516,9 @@ for its respective share, i.e.,
 \end{equation*}
 and sends it to the verifier.
 After aggregating the proof packets
-$(u_i, s_i)$, $i \in Q$,
+$(u_i, s_i),\hspace{2pt}i \in Q,$
 the verifier computes
-$c_i \leftarrow H(u_i)$, $i \in Q$
+$c_i \leftarrow H(u_i),\hspace{2pt} i \in Q,$
 and accepts only if the relation
 \vspace{5pt}
 \begin{equation}\label{intro_trivial_verification_1}
@@ -509,30 +531,22 @@ g ^ {s_i} = y_i ^ {c_i} u_i,
 \forall i \in Q
 \vspace{5pt}
 \end{equation}
-is satisfied, where $\{\lambda_i\}_{i \in Q}$ are the Lagrange
-interpolation coefficients for $Q$.
-We will refer to this as the \textit{trivial approach}.
-That is, the verifier identifies the coalition
-only if the involved shareholders
-prove knowledge of their respective keys individually
-and their shares combine to the group public key
-in the sense of interpolation.
-Indeed, the latter is satisfied only if $|Q| \ge t$
-(as desired),
-while the first is a common method for hardening
-distributed schemes against malleability, namely,
-requiring from the shareholders to present decoupled
-proofs for contextual statements
-that verify against their respective
-shares.\footnote{Compare
-the decoupled Chaum-Pedersen proofs
-in a threshold decryption scheme, used to ensure
-validity of the partial decryptors with respect to the
-ciphertext.}
+is satisfied, where $\{\lambda_i\}_{i \in Q}$ are the
+Lagrange interpolation coefficients for $Q$.
+We refer to this protocol as the \textit{trivial approach}.
+The verifier identifies the involved parties only if
+their public shares combine to the group public key
+and they individually prove knwoledge of their respective secret.
+The first condition is satisfied only if $|Q| \ge t$ (as desired)
+while the second is a method for hardening
+distributed protocols against malleability, i.e.,
+requiring from the involved parties
+to present proofs for contextual statements
+that verify against their respective public keys.
 Note also that \eqref{intro_trivial_verification_1} is an overkill.
-If the public shares $y_1, \dots, y_n$ are advertised
-as such anyway (i.e., the verifier registers them
-as the fixed sharing of $y$),
+If the public shares $y_1, \dots, y_n$
+must be advertised and trusted anyway
+(i.e., the verifier registers them as the fixed sharing of $y$),
 the identifying condition reduces to
 \vspace{5pt}
 \begin{equation}\label{intro_trivial_verification_2}
@@ -543,37 +557,28 @@ the identifying condition reduces to
 g ^ {s_i} = y_i ^ {c_i} u_i,
 \hspace{2pt}
 \forall i \in Q
-\hspace{1pt};
+\hspace{1pt}.
 \vspace{5pt}
 \end{equation}
-even if the threshold parameter does not become known
-along with the public shares,
-the verifier can trivially infer $t$ from $y_1, \dots, y_n$ and $y$
-and make use of it in subsequent protocol rounds.
-
-Evidently, this protocol is secure
-if $y_1, \dots, y_n$ is a $(n, t)$-sharing of $y$;
+\noindent
+The protocol is secure
+if $y_1, \dots, y_n$ is the correct $(n, t)$-sharing of $y$;
 however, in the absence of side input
 on the verifier's side,
-the protocol is secure \textit{only} under the latter assumption.
+its security relies entirely on the registration process.
 Indeed, as illustrated by \eqref{intro_trivial_verification_2},
 the bulk of the work has been
-absorbed in the registration of the public shares
-during the setup phase; the verifier accepts only because
-the registered keys have already been trusted.
-Equivalently, the security analysis
-reduces trivially to the thread model for the initial setup.
-The problem is that, in real life,
-taking a trusted multi-key setup for granted
-is itself the opposite of trivial,
-since the possibilities regarding roles,
-trust assumptions and network operations
+absorbed in the registration of the public shares;
+the verifier accepts only because
+the public shares have already been trusted
+and the security analysis of the protocol
+reduces trivially to the threat model for its initial setup.
+The problem is that
+a trusted multi-key setup is itself
+a highly non-trivial assumption,
+since the possibilities regarding
+the involved roles and operations
 compose a rather broad attack surface.
-In particular,
-since proof verification is entirely dependent
-on the registered public shares, the protocol
-remains susceptible to to all sorts of malicious acting
-during the setup phase.
 For example, a proxy that is responsible
 for advertising the public shares
 may tamper with a certain subset of them,
@@ -594,42 +599,38 @@ y^* = (y_t^*)^{\lambda_t}\prod_{i=1}^{t-1}y_i^{\lambda_i}
 in place of $y$, where $\{\lambda_i\}_{i}$
 are the Lagrange interpolation coefficients for $\{1, \dots, t\}$.
 By reverse-engineering Shamir reconstruction,
-the proxy tunes $y_i^*$, $t < i \le n$
+the proxy tunes $y_i^*,\hspace{2pt} t < i \le n,$
 so that $y_1, \dots, y_{t-1}, y_t^*, \dots, y_n^*$
 becomes a $(n, t)$-sharing of $y^*$
-and sends it to the verifier;
+and broadcasts it to the verifiers;
 in the sequel, it can jump in and
 impersonate the $t$-th shareholder
 whenever the shareholders $1, \dots, t-1$ engage
 in a session.
 While ad hoc threat models can obviously be formulated
 for specific use cases (e.g., for a restricted pool of
-shareholders that undergo a well defined certification process),
+shareholders that undergo a well specified certification process),
 this discussion implies that
 an ecompassing threat model is impossible to pin down.
 In the terminology of Bellare and Neven \cite{paper_bellare_musig},
-the protocol has no chance to be provably secure
+the protocol is not secure
 in the \textit{plain public-key} model.
 
 One can alleviate the situation by working in the
-\textit{knowledge of secret key} (KOSK) model
-and design a zero-knowledge based registration process,
+\textit{knowledge of secret key} (KOSK) model,
+i.e., design a zero-knowledge based registration process,
 capable of detecting rogue-key attempts
 by means of purely cryptographic techniques.
 In this case, a security analysis becomes more tractable
 because a threat model for the initial setup can be
-formulated in terms of well defined malicious acts
-(even though dependence on the setup
-may introduce unexpected complexities
-to a formal security proof).
-However, an operation of this kind is not obvious to scale,
-since it should ensure that the public shares are compatible,
-and its repetition can become cumbersome
+formulated in terms of well defined malicious acts.
+However, an operation of this kind is not obvious to scale
+and its repetition can be cumbersome
 if the shareholders are not static.
-More importantly, the KOSK assumption narrows
+More importantly, KOSK narrows
 the applicability of the protocol severely,
 since any verifiable registration process
-is an infrastructure plugin which real-world vendors
+is an infrastructure plugin that real-world vendors
 may be unable or unwilling to interoperate with.
 
 These are standard arguments speaking in favour
@@ -639,12 +640,9 @@ For threshold identification,
 this requirement is further hardened as
 \textit{non-reliance on the public shares},
 meaning that the verification operation should only involve
-the group public key while the protocol
-remains secure in the plain model.
+the group public key.
 In fact, this is a sine qua non if the desired protocol is
-to be applicable in a high-stressed and flexible
-decentralized setting
-(cf. Section \ref{section_distributed_provers}).
+to be applicable in flexible decentralized settings.
 
 
 \subsection{Distributed provers in decentralized networks}\label{section_distributed_provers}
@@ -653,142 +651,114 @@ We contended above that non-reliance on the public shares
 is a necessary condition for pragmatic security
 in the plain public-key model, where
 no concrete certification process
-for the shareholders' keys can be assumed
+for the public shares can be assumed
 to be available or known.
-Existence of such processes usually indicates
+Existence of such processes indicates
 a relatively limited number of shareholders
 that either belong to an organization or participate
 in a supposedly decentralized network,
-where group creation is subject to uniform rules
-and monitored. In such settings,
+where group constitution is subject to
+regulation and monitoring.
+In such cases,
 the role of verifier is usually reserved for
-a bunch of authorized servers or dedicated nodes,
+a bunch of authorized servers or nodes,
 responsible for managing some protected resource or
 performing specific acts in the context of a broader protocol.
-The trivial approach with an ad hoc initial setup,
+The trivial approach with an ad hoc setup,
 supported by the relevant infrastructure
-and accompanying attack model,
-can be a decent solution for these cases,
+and attack model,
+can be a decent solution,
 at least insofar as the group of shareholders
 remains relatively static
 and general interoperability
 is not a hard requirement.
-
-We are interested in use cases beyond that,
-where even maintaining the public shares,
-let alone trusting them, can cause severe headache.
-As a direct consequence,
-note that non-reliance on the public shares yields
-an almost plug-and-play solution for already advertised
-identities. Specifically, if the verification operation involves
-only the group public key, existing Schnorr verifiers
-need only extend their software
-in order to support the distributed case,
-without adding new infrastrucure for the
-registration of newly advertised shares.
-Pre-existing keys can be silently shared
-at the verifiers' complete negligence.
+We are interested for use cases beyond that.
 
 We address distributed identification in
 a fairly unconditioned context,
 with as few assumptions as possible
-beyond a generic synchronous network
+beyond a generic network
 with reliable packet delivery.
-The only assumption about Shamir-backed group creation should be
-that the public key of the combined prover
-be advertised in some ``trusted'' fashion;
-no group relevant infrastructure is
+The only assumption regarding
+Shamir-based group constitution is that
+the combined public key
+be correctly advertised.
+No infrastructure is
 assumed to be available after that phase,
 e.g., proxies, registries for individual member identities,
 storages for pre-processed quantities,
 aggregators interacting with involved provers,
-or even traceable communication channels among them.
+or even traceable communication channels between them.
 A group might be created on the fly and its public key
-be the only remnant of that ceremony
-(except for the secrets held by its members in private);
+be the only remnant of that ceremony;
 after dissolution of the setup channels,
 its members may have no way to coordinate or identify
 with each other, be unwilling to do so or be compelled to
 act independently.
-This is even more important if
-the desired primitive is to be applicable as distributed
-proof-of-secret in a secure multiparty computation;
-in this case, combined keys do not usually
-outlive protocol rounds and
-any relevant infrastructure is a costly overkill
-(if not at all prohibited).
 
-Absence of group infrastructure implies that
-the shareholders should in general be able to
-act without coordination during the proving phase.
-In particular, they should not even need to communicate,
+Absence of infrastructure implies that
+the provers should be able to
+act without relying on real-time communication,
 meaning that the protocol has to be
-non-interactive on the provers' side.
+non-interactive on their side.
 This introduces a high degree of asynchronicity
-which in turn imposes constraints on the interaction
-of the combined prover with the verifier.
+which imposes constraints on their interaction
+with the verifier.
 In particular, a verifier's response
 to the $j$-th shareholder should not be dependent
 on any request from the $i$-th shareholder for $i \neq j$.
 Equivalently, the proving session should decouple into
 independent interactions between the verifier
-and the individual shareholders; after aggregating
+and the involved provers; after aggregating
 the decoupled results of these interactions, the verifier
-combines them and proceeds to the final verification step.
+proceeds to the final verification step.
 Ideally, the decoupled interactions should themselves be
 non-interactive, i.e., consist of a single communication
-step in which individual shareholders send their respective
-proof packets to the verifier.
+step in which the involved parties send their respective
+proofs to the verifier.
 
-Note that the trivial approach satisfies
-these requirements automatically.
-Indeed, it presupposes no coordination or infrastructure
-to be available during the proving phase;
-infrastructure is only needed during
-the setup in order to accomodate
-the verifiers' trust on the public shares.
-To see why this is still inadequate,
-consider a \textit{truly} decentralized network
+On the verifier's side, absence of infrastructure
+implies non-reliance on the public shares.
+Consider the extreme case of a
+\textit{truly} decentralized network,
 where qualified verifiers can be user devices
-or application servers alike.
-That is, verification may occur massively
-on a multitude of devices that need not be aware
-of the individual shareholders' identities for every group
+or application servers alike in a dynamic fashion.
+That is, verification can occur
+on a multitude of devices that are not aware
+of the individual members' identities for every group
 they come accross in the network.
 It simply cannot be expected from a mobile or other IoT device
-to maintain the public shares of every group
+to maintain the public shares for every group
 it might want to verify,
 let alone engage in a certification process
 in order to register them.
 Note also that fetching the public shares
-from remote registries on demand in not generally an option;
-even if maintaining these registries were possible,
+from remote registries is not an option;
+even if such registries exist,
 trusting them is a highly non-trivial assumption
 (comparable to KOSK)
-while depending on them would significantly affect
-network latency and robustness.
+and depending on them would significantly affect
+latency and robustness.
 
 Further efficiency considerations are here in order,
-since decentralized verifiers do not necessarily possess
+since the decentralized verifiers do not necessarily possess
 the capabilities of a fine-tuned application server.
 It is well known that the wireless transmission
-of a single bit consumes more power
-than a 64-bit (or 32-bit) instruction by orders of magnitude.
-Consequently, reduced throughout is
-usually the dominating factor
-with respect to overall energy consumption;
-from the individual node's perspective,
-this amounts to longer batterly life
+of a single bit requires more power
+than a 64-bit (or 32-bit) instruction by orders of magnitude,
+which implies that throughput is
+the dominating factor with respect to overall energy consumption.
+From the individual node's perspective,
+lower throughput implies longer batterly life
 if it runs on a wireless device.
-Reduced throughput is even more important
-in order to avoid network congestion; indeed,
-if the network is truly decentralized,
-proof packets have to be massively trasmitted
-through a bunch of dedicated relay nodes
+Low throughput is even more important
+in order to avoid network congestion,
+since the proof packets have to be massively trasmitted
+through relay nodes
 in order to be verified at arbitrary locations.
 The problem remains to
 design a non-interactive threshold protocol
-with reduced throughput that is
+with low throughput that is
 non-reliant on public shares, infrastructure-free
 on both sides, secure in the plain public-key model,
 and as such applicable in truly decentralized settings.
@@ -797,8 +767,8 @@ and as such applicable in truly decentralized settings.
 
 \subsection{Non-working solutions}\label{section_non_working_solutions}
 
-We informally discuss two plausible approaches to the
-problem of distributed Schnorr identification
+We discuss two plausible approaches to the
+problem of threshold Schnorr identification
 and show how they fail to meet
 the requirements of
 Section \ref{section_distributed_provers}.
@@ -811,15 +781,11 @@ Schnorr identification with a message baked
 into the hash function.
 This suggests an approach similar to the
 threshold signature scheme introduced
-by Stinson and Strobl \cite{paper_stinson_strobl}.
-This requires no infrastructure extensions
-on the verifier's side, since verification
-involves only the group public key.
+by \cite{paper_stinson_strobl}.
 Let $x_1, \dots, x_n$ be the fixed
-$(n,t)$-sharing of some secret $x$
-with public counterpart $y$.
+$(n,t)$-sharing of $x$ and $y$ be its public counterpart.
 A coalition of shareholders $Q \subset \{1, \dots, n\}$,
-$|Q| \ge t$, execute an equivalent DKG protocol to generate
+$|Q| \ge t$, execute some DKG protocol to generate
 \vspace{5pt}
 \begin{equation*}
 r = \sum_{i \in Q} \lambda_i r_i,
@@ -828,8 +794,8 @@ r = \sum_{i \in Q} \lambda_i r_i,
 where $\{\lambda_i\}_{i \in Q}$
 are the interpolation coefficients
 for $Q$, holding the respective $r_i$'s in private.
-$r$ need not be reconstructible
-at any single location but involved parties should be able to
+$r$ need not be locally reconstructible
+but involved parties should be able to
 verifiably infer the distributed commitment
 $u = g^r$ at the end of the process.
 Next, the involved parties generate Schnorr proofs
@@ -882,16 +848,9 @@ non-distributed case and its performance
 is not dependent on the number of involved shareholders.
 This is usually the case for Schnorr threshold signatures.
 
-We will refer to the above protocol as the
-\textit{uniform commitment} approach.
-Its security reduces most probably
-to that of the non-distributed case
-by carefully adapting the arguments of
-\cite{paper_stinson_strobl} to the identification setting.
-It relies on the fact that
-this ``is" ordinary Schnorr identification if we treat the
-involved shareholders as a single entity;
-indeed, the combined proof $(u, s)$ lies in the domain
+This protocol is equivalent to ordinary Schnorr identification
+if we treat the involved provers as a single entity;
+i.e., $(u, s)$ lies in the domain
 of proofs that could have been generated
 for $x$ directly.
 This commutation is crucial for
@@ -900,28 +859,27 @@ where the final object may need to
 remain available in the long run
 and consequently use minimum space,
 but not for an identification protocol,
-where no persistent data need be generated.
+where no persistent data are generated.
 In fact, it countervenes the requirement
 of reduced interactiveness, as it is achieved through
-a highly interactive computation
-for generating $g^r$.
-This evidently introduces significant
+the distributed computation of $u$.
+This introduces significant
 network overhead upon every protocol round and
-presupposes that some infrastructure is constantly available
-to the group of shareholders.
+presupposes that some infrastructure is available
+to the shareholders.
 Consequently, despite the efficiency of its verifier,
 the uniform commitment approach does not meet the requirements
 of Section \ref{section_distributed_provers} on the provers' side.
 The state-of-the-art for managing the network overhead
 of Schnorr threshold signatures
-is the FROST protocol introduced by Komlo and Goldberg \cite{paper_frost}
+is the FROST protocol introduced by \cite{paper_frost}
 and its variants.
 This reduces the number of communication rounds
 to one or two by means of a semi-trusted aggregator,
 depending on whether
 a preprocessing stage takes place during the initial setup;
 however, it comes at the cost of more
-infrastructure (and consequently more trust assumptions)
+infrastructure (and more trust assumptions)
 which makes it even more
 prohibiting for a flexible identification setting.
 
@@ -929,13 +887,11 @@ prohibiting for a flexible identification setting.
 
 This is a variance of the trivial approach,
 where the public shares
-need not be advertized and trusted during the setup phase.
-Instead, they are attached to the
-Schnorr proofs that are generated
-by the respective shareholders.
+need not be advertised.
+Instead, they are attached to the proofs.
 Given a $(n, t)$-sharing
 $x_1, \dots, x_n$ of some secret $x$
-with public counterpart $y =  g^x$,
+with public counterpart $y$,
 a coalition of shareholders
 $Q \subset \{1, \dots, n\}$
 generate
@@ -951,22 +907,20 @@ generate
 \end{equation*}
 respectively
 and send them to the verifier.
-After aggregating
+After aggregating the packets
 $(y_i, u_i, s_i)$, $i \in Q$,
 the verifier computes $c_i \leftarrow H(u_i)$
 and accepts only if condition
 \eqref{intro_trivial_verification_1}
 is satisfied.
-We will refer to this protocol as the
-\textit{completely decoupled} approach.
-Intuitively, its security reduces to the proof-of-knowledge
+Security reduces to the proof-of-knowledge
 property of the Schnorr protocol.
-Every shareholder ``should know"
-the discrete logarithm of the attached share
+Every party ``should know"
+the logarithm of the attached group element
 because the respective proof verifies;
-since the attached shares combine to the group public key,
-their respective logarithms comprise a sharing of
-$x$ and the shareholders belong to the group
+since the attachments combine to $y = g ^ x$,
+the respective secret logarithms comprise a sharing of
+$x$ and the provers should belong to the group
 represented by $y$.
 
 The protocol is non-reliant on public shares and
@@ -985,16 +939,16 @@ of true decentralization
 (cf. Section \ref{section_distributed_provers}).
 
 Moreover, the security argument is not as strong
-as it might seem. The Schnorr proof-of-knowledge
-property is not concretely defined in terms of an attack game
-and it basically means extractability under discrete logarithm
+as it might seem. Recall that the Schnorr proof-of-knowledge
+property is not defined in terms of an attack game
+and it basically means extractability under $\mathsf{DL}$
 hardness. Consequently, the security of the threshold protocol
-cannot be formally reduced to it in the strict sense;
+cannot reduce to it strictly;
 by saying that it ``reduces to" it,
 what we actually mean is that
 some relevant extraction procedure
 should itself be reproducible in the context of
-a black-box threshold attack.
+a rewindable black-box threshold attack.
 This does not seem to be possible.
 Consider an adversary $\mathcal{A}$ who knows
 $\{x_i\}_{i \in J}$
@@ -1002,8 +956,12 @@ for some $J \subset \{1, \dots, n\}$ with $|J| = t - 1$
 and wants to impersonate
 $Q = J \cup \{\hspace{1pt}j\hspace{1pt}\}$
 with $j \not \in J$ against an interactive verifier.
+The extractability argument regarding security
+means that any such $\mathcal{A}$
+should necessarily spit $x_j$ by rewinding in case of
+a successful impersonation attack.
 One possible attack pattern could
-be using the shares that are known to the adversary directly.
+be using the shares that are known to $\mathcal{A}$ directly.
 That is, for every $i \in J$,
 $\mathcal{A}$ sends
 \vspace{5pt}
@@ -1022,15 +980,15 @@ in turn, $\mathcal{A}$ responds
 with $s_i \leftarrow r_i + c_i\hspace{1pt}x_i$.
 Next, $\mathcal{A}$ fabricates $u_j$
 accoridng to some black-box strategy and sends
-$(y_j, u_j)$, $y_j \leftarrow g ^ {x_j}$ to the verifier,
+$(y_j, u_j),\hspace{2pt} y_j \equiv g ^ {x_j},$ to the verifier,
 who samples $c_j \leftarrow_\$ \mathbb{Z}_q$ for $u_j$
 and sends it to the adversary.
 Finally, $\mathcal{A}$ fabricates $s_j$
 according to some black-box strategy
 and sends it to the verifier.
-Evidently, extraction of $x_j$ is here possible
+Evidently, extraction of $x_j$ is possible
 by rewinding $\mathcal{A}$
-exactly before sending $(y_j, u_j)$,
+exactly before sending $(y_j, u_j)$ to the verifier,
 provided that it
 succeeds in generating a valid transcript.
 This is ordinary extraction
@@ -1051,16 +1009,17 @@ to be possible by rewinding.
 \section{One-round schnorr threshold identification}\label{section_orst}
 
 \noindent
-Throughout this section we fix
-a cyclic group $\mathbb{G} = \langle g \rangle$ of order $q$
-where the discrete-logarithm problem is hard and
+We fix a cyclic group $\mathbb{G} = \langle g \rangle$ of order $q$
+where the $\mathsf{DL}$ problem is hard and
 a secure hash function $H: \mathbb{G} \rightarrow \mathbb{Z}_q$.
-The Shamir's $(n, t)$-sharing is denoted by $D$
-(cf. Section \ref{section_shamir}), with the particular values
-of its parameters inferred always from context.
-Given integers $1 \le t \le n < q$ TODO
+Shamir's secret sharing is denoted by $D$
+(cf. Appendix \ref{section_shamir}) and the values
+of its parameters are inferred always from context.
 
 \subsection{The $\mathsf{ORST}$ protocol}
+
+Given integers $(n, t)$ such that $1 \le t \le n < q$,
+we define the following threshold identification scheme.
 
 \begin{protocol}\label{orst_protocol}
 ($
@@ -1075,15 +1034,15 @@ distributed among a group of $n$ shareholders
 by means of Shamir's $(n, t)$-sharing, i.e.,
 \vspace{5pt}
 \begin{equation*}\label{orst_sharing}
-(x_1, \dots, x_n;\ y) \leftarrow D(x),
-\ \ x \leftarrow_\$ \mathbb{Z}_q
+(x_1, \dots, x_n;\hspace{2pt} y) \leftarrow D(x),
+\hspace{4pt} x \leftarrow_\$ \mathbb{Z}_q
 \vspace{5pt}
 \end{equation*}
 The threshold parameter and the public shares may remain private to the group,
 who needs only advertise the combined public key $y$.
 \vspace{5pt}
 \item \textit{Proving phase}. A coalition of shareholders
-$Q \subset \{1, \dots, n\}$ respectively send
+$Q \subset \{1, \dots, n\}$ generate
 \vspace{5pt}
 \begin{equation*}
 (u_i, s_i),
@@ -1093,17 +1052,15 @@ $Q \subset \{1, \dots, n\}$ respectively send
 \ \ r_i \leftarrow_\$ \mathbb{Z}_q
 \vspace{5pt}
 \end{equation*}
-to the verifier and hold $r_i$ in private, $i \in Q$.
+and send it to the verifier holding $r_i$ in private, $i \in Q$.
 \vspace{5pt}
 \item \textit{Verification}.
-After aggregating $(u_i, s_i)$, $i \in Q$
+After aggregating $(u_i, s_i),\hspace{2pt} i \in Q,$
 the verifier accepts only if
 \vspace{6pt}
-\begin{equation}\label{orst_verification}
-\begin{split}
-\exp\Big(g, \sum_{i \in Q} \mu_i s_i\Big) &=
+\begin{equation}\label{orst_verification_0}
+\exp\Big(\hspace{1pt}g, \sum_{i \in Q} \mu_i s_i\Big) =
 y^{\bar{c}} \prod_{i \in Q} u_i ^ {\mu_i},
-\end{split}
 \vspace{-3pt}
 \end{equation}
 where
@@ -1114,14 +1071,64 @@ where
 \ \ \  c_i \leftarrow H(u_i)
 \vspace{8pt}
 \end{equation}
-and $\{\lambda_i\}_{i \in Q }$ are the interpolation coefficients
-for $Q$.
+and $\{\lambda_i\}_{i \in Q }$ are the
+Lagrange interpolation coefficients for $Q$.
+\vspace{5pt}
 \end{protocol}
+
+\noindent
+The sharing scheme of the setup phase may be replaced
+with any DKG whose output distribution
+is indistinguishable from that of Shamir's secret sharing.
+That is, it shouldn't matter if $x$ has been shared by a dealer
+or it cannot be reconstructed at a single location; it only
+suffices that the correct public key
+$y = g ^ x$ be advertised at the end of the process.
+Note that DKG's usually assume a bound $0 \le l < t$
+on the number of corrupt parties
+in order for the sharing to be secure,
+but this does not affect the security analysis of
+$\mathsf{ORST}$
+(cf. Section \ref{section_general_threat_model})
+because it belongs to the threat model of the
+specific use case.
+
+During the proving phase,
+the involved shareholders generate ordinary Schnorr
+proofs for their respective shares
+and send them to the verifier asynchronously.
+No real-time communication is required between them.
+Order coordination or some session timeout
+may be enforced by the verifier for the needs of a specific use case,
+but this should not affect the threat model essentially
+because the local computations remain decoupled.
+The protocol is non-interactive in a strict sense
+(``one-round") and meets the requirements of
+Section \ref{section_distributed_provers} on the provers' side.
+
+Verification efficiency is comparable to that of the uniform
+commitment approach (Section \ref{section_uniform_commitment}),
+if at the cost of more (non-exponential) numerical operations.
+It requires $|Q| + 2$ exponentiations
+while its throughput grows linearly
+with respect to the number of involved shareholders;
+for example, if $\mathbb{G}$ is the elliptic curve P256 and
+128-bit challenges is sufficient to work with,
+the inbound throughput is $512 \hspace{1pt} |Q|$ bits per protocol round.
+Since the operation per se involves
+the group public key alone, no maintentance of the public shares is
+required and the protocol meets
+the requirements of Section \ref{section_distributed_provers}
+on the verifier's side.
+Existing verifiers need only extend
+their software in order to support the distributed case,
+without adding new infrastructure
+for trusting and registering any public shares.
 
 \begin{rem}\label{rem_orst_verification_exponents}
 (\textit{Validity condition})
 By equating exponents,
-\eqref{orst_verification} translates to
+\eqref{orst_verification_0} translates to
 \vspace{5pt}
 \begin{equation}\label{orst_verification_exponents}
 \sum_{i \in Q} \mu_i\hspace{1pt} (s_i - r_i) =
@@ -1129,14 +1136,15 @@ By equating exponents,
 \vspace{5pt}
 \end{equation}
 where $r_i \equiv \log u_i$.
-Observe that this contains no reference to shares.
+Observe that this contains no reference to secret shares.
 \end{rem}
 
 \begin{rem}\label{orst_correctness}
 (\textit{Correctness})
-Let $y_i = g ^ {x_i},\ 1 \le i \le n$
+Let $y_i = g ^ {x_i},\hspace{2pt} 1 \le i \le n$
 be the public shares.
-The left-hand side of \eqref{orst_verification}
+Under this notation,
+the left-hand side of condition \eqref{orst_verification_0}
 transforms as
 \vspace{5pt}
 \begin{equation*}
@@ -1147,105 +1155,50 @@ transforms as
 \vspace{5pt}
 \end{equation*}
 which yields the right-hand side if (and only if) $|Q| \ge t$.
-In other words, the proper execution of the protocol verifies
+In other words, the proper protocol execution verifies
 only if at least $t$ shareholders are involved.
 \end{rem}
 
 \begin{rem}\label{orst_interactive}
-(\textit{Interactive aspect})
+(\textit{Interactive variance})
 We may regard $H$ as approximating
 a random oracle insofar as predicting any of its output bits
 remains infeasible; in the limit,
-involved shareholders submit their commitments
-to an external oracle that is accessible to the verifier.
-Or, equivalently, they send their commitments
+the provers submit their commitments
+to an oracle that is accessible to the verifier.
+Or, equivalently, they send them
 directly to the verifier, who lazily samples challenges
-by maintaining a lookup table $\mathsf{Map}$,
-so that the protocol becomes interactive.
-Specifically, the $i$-th shareholder
+by maintaining a lookup table $\mathsf{Map}$ per session.
+For every $i \in Q$, the $i$-th shareholder
 samples $r_i \leftarrow_\$ \mathbb{Z}_q$
-and sends the commitment
-$u_i \leftarrow g ^ {r_i}$ to the verifier,
-who samples
+and sends
+$u_i = g ^ {r_i}$ to the verifier.
+If $u_i \not \in \textup{Dom}(\mathsf{Map})$,
+the verifier samples
 $c_i \leftarrow_\$ \mathbb{Z}_q$
-if $ u \not \in \textup{Dom}(\mathsf{Map})$,
-caches
+and caches
 $\mathsf{Map}\hspace{0.5pt}
-[\hspace{0.5pt}u_i\hspace{0.5pt}]\leftarrow c_i$
-and responds with $c_i$;
-otherwise, it responds with
+[\hspace{0.5pt}u_i\hspace{0.5pt}]\leftarrow c_i$;
+in either case, it sends %the challenge
 $c_i \leftarrow \mathsf{Map}\hspace{0.5pt}
-[\hspace{0.5pt}u_i\hspace{0.5pt}]$.
-In turn, the $i$-th shareholder responds with
+[\hspace{0.5pt}u_i\hspace{0.5pt}]$
+to the shareholder, who responds with
 $s_i \leftarrow r_i + c_i\hspace{1pt}x_i$.
 After aggregating
 $s_i,\hspace{2pt} i \in Q,$
-the verifier checks that condition
-\eqref{orst_verification} is satisfied using
+the verifier checks
+\eqref{orst_verification_0} using
 the previously cached challenges
 $c_i = \mathsf{Map}\hspace{0.5pt}
 [\hspace{0.5pt}u_i\hspace{0.5pt}],\hspace{2pt} i \in Q$.
 \end{rem}
 
 \noindent
-The sharing scheme of the setup may be replaced
-with any DKG whose output distribution
-is indistinguishable from that of Shamir's secret sharing.
-That is, it shouldn't matter if $x$ has been shared by a dealer
-or it cannot be reconstructed at a single location; it only
-suffices that the correct public key
-$y = g ^ x$ be advertised at the end of the process.
-Note that DKG's usually assume a bound $0 \le l < t$
-on the number of corrupt parties
-in order for the distribution to be secure.
-Since a threshold threat model allows the corruption
-of up to $t-1$ parties, plugging a DKG is indifferent
-only if the corruption takes place
-after the completion of key distribution.
-This is in accordance with the requirement
-that $\mathsf{ORST}$ should be agnostic
-with respect to its setup internals,
-meaning that a separate security analysis
-should be dedicated per use case to it.
-TODO
-
-During the proving phase,
-the involved shareholders generate ordinary Schnorr
-proofs for their respective shares
-and send them to the verifier asynchronously.
-No agreement or coordination is assumed between them.
-Order coordination or some session timeout
-may be enforced by the verifier for the needs of a specific use case,
-but this should not affect the threat model essentially
-because the local computations remain decoupled.
-The protocol is non-interactive in a strict sense
-(``one-round"), since it requires no
-communication rounds among the shareholders.
-Specifically, $\textsf{ORST}$ meets the requirements of
-Section \ref{section_distributed_provers} on the provers' side.
-
-Verification efficiency is comparable to that of the uniform
-challenge approach (without proxy),
-even if at the cost of more numerical operations.
-It requires $|Q| + 2$ exponentiations
-while its throughput grows linearly
-with respect to the number of involved shareholders;
-for example, if $\mathbb{G}$ is the elliptic curve P256 and
-assuming that 128-bit challenges is sufficient to work with,
-the inbound throughput is $512 \hspace{1pt} |Q|$ bits per protocol round.
-Since the operation per se involves
-the group public key alone, no maintentance of the public shares is
-needed and the protocol meets
-the requirements of Section \ref{section_distributed_provers}
-on the verifier's side.
-Existing Schnorr verifiers need only extend
-their software in order to support the distributed case,
-without adding new infrastructure
-for the certification and registration of public shares.
+We proceed to the formal definitions regarding $\mathsf{ORST}$.
 
 \begin{defn}\label{orst_weights_definition}
-The \textit{weights of} a collection
-$\{u_i\}_{i \in Q} \subset \mathbb{G},\ Q \subset \{1, \dots, n\}$,
+The \textit{weights of}
+$\{u_i\}_{i \in Q} \subset \mathbb{G}$
 are the scalars
 $\{\mu_i\}_{i \in Q}$
 defined as
@@ -1254,7 +1207,7 @@ defined as
 \mu_i =\lambda_i \prod_{j \in Q \setminus \{i\}} c_j
 \vspace{5pt}
 \end{equation}
-where $c_i \equiv H(u_i)$, $i \in Q$ and
+where $c_i \equiv H(u_i)$ and
 $\{\lambda_i\}_{i \in Q }$ are the interpolation
 coefficients for $Q$.
 Under the same notation,
@@ -1266,12 +1219,13 @@ the \textit{normalizer of} $\{u_i\}_{i \in Q}$ is the scalar
 \end{equation}
 \end{defn}
 \noindent
-That is, \textsf{ORST}-verification juncts the decoupled
-Schnorr proofs through the weights and normalizer
+That is, the verifier juncts the decoupled
+proofs through the weights and the normalizer
 of the points $\{u_i\}_{i \in Q}$,
-which the shareholders respectively commit to.
-We have already used (cf. Remark \ref{orst_correctness})
-the following fundamental remark.
+which the individual provers respectively commit to.
+We have already made use of
+the following relation
+(cf. Remark \ref{orst_correctness}).
 
 \begin{rem}\label{orst_core_remark}
 (\textit{Relation between weights and the normalizer})
@@ -1291,7 +1245,7 @@ $\sigma = \{(u_i, s_i)\}_{i \in Q}$ of the form
 \vspace{5pt}
 \begin{equation*}\label{orst_proof_form}
 (u_i, s_i) \in \mathbb{G} \times \mathbb{Z}_q,
-\ \forall i \in Q
+\vspace{2pt}\forall i \in Q
 \hspace{3pt}
 \land
 \hspace{3pt}
@@ -1303,55 +1257,55 @@ $\{u_i\}_{i \in Q}$ as its \textit{commitments} and
 say that $\sigma$ is \textit{based on} them.
 We also refer to $\{s_i\}_{i \in Q}$ as the
 \textit{responses}.
-The \textit{weights} resp. \textit{normalizer of} $\sigma$
-are the weights resp. normalizer of its commitments.
+The \textit{weights} and \textit{normalizer of} $\sigma$
+are the weights and normalizer of its commitments respectively.
 The \textit{proof space}
 is the set of proofs and will be denoted by $\Sigma$.
 We also denote by
 \vspace{5pt}
-\begin{equation}\label{orst_proofs_on_commitments}
-\Sigma\big[\{u_i\}_{i \in Q}\big] =
-\{
-	\hspace{1pt}
-	\sigma \in \Sigma:
-	\exists \{s_i\}_{i \in Q} \textup{ such that }
-	\sigma = \{(u_i, s_i)\}_{i \in Q}
-	\hspace{1pt}
-\}
+\begin{equation*}\label{orst_proofs_on_commitments}
+\Sigma\big[\{u_i\}_{i \in Q}\big]
 \vspace{5pt}
-\end{equation}
-the subspace of proofs that are based on $\{u_i\}_{i \in Q}$.
+\end{equation*}
+%\{
+%	\hspace{1pt}
+%	\sigma \in \Sigma:
+%	\exists \{s_i\}_{i \in Q} \textup{ such that }
+%	\sigma = \{(u_i, s_i)\}_{i \in Q}
+%	\hspace{1pt}
+%\}
+the subspace of proofs that are
+based on commitments $\{u_i\}_{i \in Q}$.
 Evidently, proofs in this subspace
 share the same weights and normalizer.
 \end{defn}
 
 \noindent
-Note that the above proof definition does not impose
+Note that the above proof notion does not impose
 constraints on the relation between
-the commitments and the responses.
-Specifically, it does not confine
-to properly generated transcipts;
-it models the verifier's view in the wild
-and includes anything that malicious provers can possibly fabricate.
+the commitments and the responses;
+spcecifically, it does not confine
+to properly generated transcripts,
+modelling the verifier's view in the wild
+and including anything that malicious provers can possibly fabricate.
 The proper execution of the protocol
 is modelled as follows.
 
 \begin{defn}\label{orst_canonical_def}
-$\{(u_i, s_i)\}_{i \in Q}$ is called
-\textit{canonical with respect to} % a sharing
-$(x_1, \dots, x_n;\ y) \in D_x$
-if its components are ordinary Schnorr proofs
-for the respective shares, i.e.,
+The proof $\{(u_i, s_i)\}_{i \in Q} \in \Sigma$ is called
+\textit{canonical with respect to} a sharing
+$(x_1, \dots, x_n;\hspace{2pt} y) \in D_x$ if
 \vspace{5pt}
 \begin{equation}\label{orst_canonical}
 s_i = r_i + c_i \hspace{1pt} x_i,
 \ \ \ c_i \equiv H(u_i),
 \ \ r_i \equiv \log u_i,
-\ \ \forall i \in Q
+\ \ \forall i \in Q,
 \vspace{5pt}
 \end{equation}
-By the ``unique responses" property
-of the ordinary Schnorr protocol,
+i.e., its components are ordinary Schnorr proof
+for the respective shares.
+Evidently, the subspace
 $\Sigma\big[\{u_i\}_{i \in Q}\big]$
 contains a unique canonical representative
 with respect to every fixed sharing.
@@ -1367,7 +1321,7 @@ invoked as
 \begin{equation*}
 \big(y, \{(u_i, s_i)\}_{i \in Q}\big)\
 \ \mapsto
-\ \hspace{4pt}\exp\Big(g, {\sum_{i \in Q} \mu_i s_i}\Big) =
+\ \hspace{4pt}\exp\Big(\hspace{1pt}g, {\sum_{i \in Q} \mu_i s_i}\Big) =
 y ^ {\bar{c}} \prod_{i \in Q} u_i^{\mu_i}
 \hspace{1pt},
 \vspace{5pt}
@@ -1384,37 +1338,34 @@ $\hspace{1pt}\mathcal{V}\hspace{1pt}(y, \sigma)
 = \textsf{true}\hspace{1pt}$.
 \end{defn}
 
-\begin{rem}
-\textsf{ORST} correctness
+\noindent
+$\mathsf{ORST}$ correctness
 (cf. Remark \ref{orst_correctness})
 means that a proof canonical with respect
-to $(x_1, \dots, x_n;\hspace{1pt} y)$
+to $(x_1, \dots, x_n;\hspace{2pt} y)$
 is valid against $y$ if and only if $|Q| \ge t$.
-\end{rem}
-
-\noindent
-The subspace of proofs based on
+The subspace of proofs that are based on
 $\{u_i\}_{i \in Q}$ and valid against $y$ is denoted by
 \vspace{5pt}
-\begin{equation}\label{orst_valid_proofs_on_commitments_def}
-\Sigma_y \big[\{u_i\}_{i \in Q}\big] =
-\{
-	\hspace{1pt}
-	\sigma \in \Sigma\big[\{u_i\}_{i \in Q}\big]:
-	\mathcal{V}\hspace{1pt}(y, \sigma) = \mathsf{true}
-	\hspace{1pt}
-\}\hspace{1pt}.
+\begin{equation*}\label{orst_valid_proofs_on_commitments_def}
+\Sigma_y \big[\{u_i\}_{i \in Q}\big]
 \vspace{5pt}
-\end{equation}
+\end{equation*}
+%\{
+%	\hspace{1pt}
+%	\sigma \in \Sigma\big[\{u_i\}_{i \in Q}\big]:
+%	\mathcal{V}\hspace{1pt}(y, \sigma) = \mathsf{true}
+%	\hspace{1pt}
+%\}\hspace{1pt}.
 If $|Q| \ge t$, then this space
 contains a unique canonical representative
 with respect to every fixed sharing of $x = \log y$.
 
 \begin{rem}
-In the non-distributed case $t=1$, the space
+In the non-distributed case $t=1$, the subspace
 $\Sigma_y \big[\{u_i\}_{i \in Q}\big]$
 is a singleton due to the ``unique responses" property
-of the Schnorr protocol.
+of the ordinary Schnorr protocol.
 Specifically, for every commitment $u$
 there exists a unique response $s$
 such that the proof $(u, s)$ is valid against $y=g^x$,
@@ -1425,7 +1376,7 @@ at a rate dependent on $|Q| \ge t$
 (cf. Remark \ref{orst_valid_above_rem}).
 This implies an abundance of valid proofs that
 are non-canonical, a fact that
-every meaningful security notion should be able to trace.
+every relevant security notion should be able to capture.
 \end{rem}
 
 \begin{prop}\label{orst_validity_conditions}
@@ -1464,13 +1415,14 @@ coefficients for $Q$.
 \begin{proof}
 Since $H$
 is a secure hash function,
+we have
 $\bar{c} \neq 0$ with overwhelming probability
 in the bitlength of the group order.
 In this case,
 the verification condition \eqref{orst_verification_exponents}
 becomes \eqref{orst_verification_1}.
-It further reformulates to
-\eqref{orst_verification_2} by application of \eqref{orst_core}.
+This further reformulates to
+\eqref{orst_verification_2} by means of \eqref{orst_core}.
 \vspace{5pt}
 \end{proof}
 
@@ -1495,9 +1447,9 @@ without knowledge of at least $t$ shares
 (cf. Section \ref{section_security_notions}).
 The exact meaning of \eqref{orst_verification_2}
 is clarified in Proposition \ref{orst_uniqueness_sharing}.
-A proof should evidently not verify against
+Evidently, a proof should not verify against
 different public keys.
-In fact, this key almost over exists and it is unique.
+In fact, this key almost always exists and it is unique.
 
 \begin{prop}\label{orst_uniqueness_public_key}
 \textup{(\textit{Almost every proof is valid against
@@ -1515,7 +1467,7 @@ which are common to all proofs based on them.
 Since $H$ is a secure hash function,
 $\bar{c} \neq 0$ with overwhelming probability in
 the bitlength of the group order.
-Consquently, given any proof of the form
+Consequently, given any proof of the form
 $\sigma = \{(u_i, s_i)\}_{i \in Q}$, we can define
 \vspace{5pt}
 \begin{equation*}
@@ -1552,8 +1504,7 @@ where the right-hand side is a partition, i.e.,
 \end{cor}
 
 \begin{proof}
-Direct consequence of Proposition \ref{orst_uniqueness_public_key}
-and the definitions.
+Direct consequence of Proposition \ref{orst_uniqueness_public_key}.
 \end{proof}
 
 \begin{prop}\label{orst_uniqueness_sharing}
@@ -1576,7 +1527,7 @@ Note that these parameters
 are common to all proofs based on the
 given commitments.
 Since $H$ is a secure hash function,
-$c_i \neq 0,\ \forall i \in Q$
+$c_i \neq 0,\hspace{2pt} \forall i \in Q,$
 with overwhelming probability in
 the bitlength of the group order.
 Consequently, given $\sigma = \{(u_i, s_i)\}_{i \in Q}$,
@@ -1602,7 +1553,7 @@ Since $s_i = r_i + c_i\hspace{1pt}x_i,\forall i \in Q$,
 the proof is canonical with respect to this sharing
 and thus valid against $y = g ^ x$.
 The claim follows because a proof can be valid
-with respect to at most one public key
+against a unique public key
 (cf. Prop. \ref{orst_uniqueness_public_key}).
 \end{proof}
 
@@ -1637,21 +1588,21 @@ where $\{\hspace{1pt}j\hspace{1pt}\} = Q \setminus J$
 and $r_i \equiv \log u_i$.
 By Proposition \ref{orst_validity_conditions}
 (cf. \eqref{orst_verification_1}),
-this process exhausts the proofs that are
+this process exhausts the proofs
 based on $\{u_i\}_{i \in Q}$ and valid against
 $y \equiv g ^ x$
 bijectively.
 That is, the subspace
 $\Sigma_y \big[\{u_i\}_{i \in Q}\big]$
 has $|Q| - 1$ degrees of freedom in the sense that
-every point of it is uniquely determined
+every included proof is uniquely determined
 by the choice of $\{s_i\}_{i \in J}$
 and $J \subset Q$ (for $|Q| = 1$
 this is the ``unique responses" property
 of ordinary Schnorr identification).
-Note that this process has no obvious utility
+Observe that this process has no obvious utility
 for an impersonating adversary,
-since the adversary would still need
+since the latter would still need
 to eliminate $x$ in order to compute $s_j$.
 \end{rem}
 
@@ -1660,7 +1611,7 @@ to eliminate $x$ in order to compute $s_j$.
 Let $x \in \mathbb{Z}_q$ and
 $\sigma = \{(u_i, s_i)\}_{i \in Q}$.
 Given $(x_1, \dots, x_n;\hspace{1pt} y) \in D_x$,
-then $\sigma$ is valid against $y$ if and only if
+the proof $\sigma$ is valid against $y$ if and only if
 \vspace{5pt}
 \begin{equation}\label{orst_validity_against_sharing}
 \sum_{i \in Q} \mu_i\hspace{1pt} (s_i - r_i - c_i\hspace{1pt}x_i)
@@ -1692,7 +1643,7 @@ Such proofs exist in abundance
 and Prop. \ref{orst_validity_against_sharing_prop}
 indicates a way to generate them programmatically.
 Fix $\{u_i\}_{i \in Q} \subset \mathbb{G}$
-and set $s_i = r_i + c_i\hspace{1pt}x_i$ where
+and set $s_i = r_i + c_i\hspace{1pt}x_i$, where
 $r_i \equiv \log u_i$, $c_i \equiv H(u_i)$.
 Pick $S \subset Q$ with $S \neq \varnothing$
 and define
@@ -1719,7 +1670,7 @@ s_i^* = s_i + \delta_i,
 \end{equation*}
 where $\bar{c}$ is the normalizer of $\{u_i\}_{i \in Q}$.
 Consider the proof $\sigma = \{(u_i, s_i)\}_{Q}$.
-If $|Q| \ge t$, then $\delta_i = 0,\forall i \in S$
+If $|Q| \ge t$, then $\delta_i = 0,\hspace{2pt} \forall i \in S,$
 so that $\sigma$ is canonical and thus automatically valid.
 If $|Q| < t$, then $\sigma$ still remains valid because
 it satisfies \eqref{orst_validity_against_sharing}
@@ -1738,7 +1689,7 @@ the $\delta_i$'s appropriately.
 Let $x \in \mathbb{Z}_q,\ \sigma = \{(u_i, s_i)\}_{i \in Q}$
 with $|Q| = t$.
 Given $(x_1, \dots, x_n;\hspace{1pt} y) \in D_x$,
-then $\sigma$ is valid against $y$ if and only if
+$\sigma$ is valid against $y$ if and only if
 \vspace{5pt}
 \begin{equation}\label{orst_validity_above}
 \sum_{i \in Q} \mu_i s_i =
@@ -1786,14 +1737,14 @@ s_j
 \end{equation*}
 where $\{\hspace{0.5pt}j\hspace{0.5pt}\} = Q \setminus J$ and
 $r_i \equiv \log u_i$, $c_i \equiv H(u_i)$.
-By Corollary \eqref{orst_validity_above_prop},
+By Corollary \ref{orst_validity_above_prop},
 this process exhausts the proofs
 that are based on $\{u_i\}_{i \in Q}$
 and valid against $y$ bijectively.
 This is a special case of Remark
 \ref{orst_validity_degrees_of_freedom}
 with reference to a fixed sharing.
-Note however that it has no obvious utility
+Observe that it has no obvious utility
 for an adversary who knows $\{x_i\}_{i \in J}$
 but not $x_j$.
 \end{rem}
@@ -1804,7 +1755,7 @@ This can be seen from a more general perspective.
 Consider a canonical proof $\{(u_i, s_i)\}_{i \in Q}$
 with $|Q| \ge t$ and let $\{\mu_i\}_{i \in Q}$ be its weights.
 Pick $j \in Q$ and arbitrary scalars
-$\delta_i,\ i \in Q \setminus \{j\}$
+$\delta_i,\hspace{2pt} i \in Q \setminus \{j\},$
 such that at least one of them is non-zero.
 If we define
 \vspace{5pt}
@@ -1828,16 +1779,107 @@ then the proof $
 	\}_{i \in Q}$
 satisfies condition \eqref{orst_validity_above}
 by design. Evidently, this process exhausts the valid proofs
-that are based on $\{u_i\}_{i \in Q}$.
+that are based on $\{u_i\}_{i \in Q}$
+(cf. Corollary \ref{orst_validity_above_prop}).
 \end{rem}
+
+\subsection{Multi-round executions}\label{section_multi_round}
+
+While $\mathsf{ORST}$ has been designed so that
+the shareholders can act independently and asynchronously,
+any $|Q| \ge t$ provers have the option to collaboratively
+generate a valid non-canonical proof without
+revealing their secret shares to each other
+(as indicated by Remark \ref{orst_valid_above_rem}),
+provided that traceable communication channels
+exist between them and the network overhead
+due to their interaction is not prohibiting.
+One possible reason is that the provers
+may want to blind their individual identities
+for privacy and anonymity.
+
+Observe that a man-in-the-middle who intercepts a canonical proof
+$\{(u_i, s_i)\}_{i \in Q}$ can trivially
+infer the involved provers' public shares in the form
+\vspace{5pt}
+\begin{equation}\label{orst_leaked_public}
+y_i =
+\sqrt[\leftroot{0}\uproot{10}c_i]{\frac{u_i}{g ^ {s_i}}}
+\ \ c_i \equiv H(u_i)
+\vspace{5pt}
+\end{equation}
+\noindent
+However, instead of sending the packets
+$(u_i, s_i),\hspace{2pt} i \in Q,$ to the verifier,
+the provers can first engage in the multi-party computation
+of scalars $\{\delta_i\}_{i \in Q}$ such that
+\vspace{5pt}
+\begin{equation}\label{orst_deviations}
+\sum_{i \in Q} \mu_i \delta_i = 0
+\vspace{5pt}
+\end{equation}
+and send the respective packets $(u_i, s_i^*),\hspace{2pt} i \in Q,$
+where $s_i^* = s_i + \delta_i$.
+Indeed, if $|Q| \ge t$
+then the proof $\{(u_i, s_i^*)\}_{i \in Q}$ remains valid because
+\vspace{5pt}
+\begin{equation*}
+\sum_{i \in Q} \mu_i s_i^* =
+\sum_{i \in Q} \mu_i s_i + \sum_{i \in Q} \mu_i \delta_i = 
+\sum_{i \in Q} \mu_i s_i
+\vspace{5pt}
+\end{equation*}
+\noindent
+(cf. Corollary \ref{orst_validity_above_prop}).
+In this case, if $\delta_i \neq 0$, then
+\vspace{5pt}
+\begin{equation*}\label{orst_thetas}
+y_i \neq \theta_i,
+\ \ \theta_i \equiv
+\sqrt[\leftroot{0}\uproot{10}c_i]{\frac{u_i}{g ^ {\hspace{1pt}s_i^*}}}
+\vspace{5pt}
+\end{equation*}
+and anonymity follows because $y_i$
+cannot be feasibly inferred from $\theta_i$,
+provided that the $\delta_i$'s
+remain private to the group of involved provers.
+We refer to $\{\delta_i\}_{i \in Q}$
+as the \textit{blinding factors}.
+
+Note that the provers can follow almost arbitrary
+multi-round strategies
+in order to compute blinding factors
+(cf. Remark \ref{orst_valid_above_rem}).
+If they want to keep them
+in private and do not trust each other,
+they can operate as follows.
+They first execute a DKG protocol
+in order to generate a verifiable $(n, t)$-sharing
+$(\eta_1, \dots, \eta_n;\hspace{2pt} 1)$
+of the zero scalar, so that $\eta_i$
+is known only to the $i$-th shareholder.
+By the homomorphic property of Shamir's secret sharing,
+$(x_1 + \eta_1, \dots, x_n + \eta_n;\hspace{2pt} y)$
+remains a $(n, t)$-sharing of the group secret $x$.
+Consequently,
+the provers can proceed to the proving phase of $\mathsf{ORST}$
+with secret shares $x_i + \eta_i,\hspace{2pt} i \in Q$
+and generate a valid proof that is
+non-canonical with respect to $(x_1, \dots, x_n;\hspace{2pt} y)$.
+Although not explicitly computed,
+the blinding factors are
+$\delta_i = c_i\hspace{0.5pt}\eta_i$.
+By Proposition \ref{orst_uniqueness_public_key},
+any multi-round execution is essentially equivalent
+to an execution of this kind.
 
 \subsection{Security considerations}
 
 Since $\mathsf{ORST}$
-decouples into concurrent runs
-of ordinary Schnorr identification, any security precaution
+decouples into concurrent executions
+of the ordinary Schnorr protocol, any security precaution
 for the latter applies also in the threshold case.
-Most notably, security against side-channel attacks
+For example, security against side-channel attacks
 cannot be attained if the random number generator
 leaks linear relations between the discrete logarithms
 of distinct commitments.
@@ -1848,21 +1890,22 @@ arise particularly in the distributed setting.
 
 \textsf{ORST}
 is as much susceptible to replay attacks
-as the non-distributed Schnorr protocol.
+as the ordinary Schnorr protocol.
 That is, a man-in-the-middle
-can passively capture and anytime replay
+can passively capture and replay
 the packets sent by a coalition
-of shareholders in order to impersonate them.
+of shareholders in order to impersonate them anytime.
 Things seem worse
 because the attacker can transform the
 intercepted proof
 almost arbitrarily,
 provided that the commitments are kept fixed.
 Let
-$\{(u_i, s_i)\}_{i \in Q}$, $|Q| \ge t$ be a
-valid proof with weights $\{\mu_i\}_{i \in Q}$.
-For fixed $j \in Q$, denote $J = Q \setminus \{j\}$,
-pick $\{\delta_i\}_{i \in J} \subset \mathbb{Z}_q$ and define
+$\{(u_i, s_i)\}_{i \in Q}$ be a
+valid proof with $|Q| \ge t$ and weights $\{\mu_i\}_{i \in Q}$.
+For fixed $j \in Q$,
+pick $\{\delta_i\}_{i \in J} \subset \mathbb{Z}_q$
+for $J = Q \setminus \{j\}$ and define
 \vspace{5pt}
 \begin{equation*}
 \delta_j = -\hspace{1pt} \frac{1}{\mu_j}\sum_{i \in J} \mu_i \delta_i\hspace{1pt}.
@@ -1881,16 +1924,12 @@ $s_i^* = s_i + \delta_i$ remains valid bacause
 (cf. Cor. \ref{orst_validity_above_prop}).
 This essentially exploits the structure described in
 Remark \ref{orst_valid_above_rem}.
-The security of the protocol should ensure
-that an attacker controlling up to $t-1$ shareholders
-remains unable to fabricate $\{(u_i, s_i^*)\}_{i \in Q}$
-without having first intercepted $\{(u_i, s_i)\}_{i \in Q}$;
-still, in case of interception,
+That is, in case of interception,
 the attacker has a least $t-1$ degrees of freedom
 in fabricating a valid proof based on the same commitments.
-This generalizes the replay attack of the non-distributed
+This evidently generalizes the replay attack of the non-distributed
 case $t=1$, where the intercepted proof can only be replayed as is.
-It should be nontheless clear that
+It should be clear that
 generalized replay attacks are
 mitigated by the same method as in the non-distributed case,
 i.e., by baking a nonce into the hash function,
@@ -1898,35 +1937,81 @@ capable of maintaining state between
 the verifier and the involved provers.
 
 \subsubsection{Non-accountability}\label{section_non_accountability}
-TODO
+Since the verifier does not generally
+maintain any trusted shares,
+$\mathsf{ORST}$ is inherently non-accountable.
+In particular, if an acclaimed shareholder sends
+a maliciously fabricated proof packet $(u_j, s_j)$
+such that \eqref{orst_verification_0}
+resolves to $\mathsf{false}$, the index $j$
+is generally untraceable
+for, say, security investigation purposes.
+If a use case presupposes that the
+public shares $y_i=g^{x_i},\hspace{2pt} 1 \le i \le n,$
+are trustedly advertised along with $y$
+and registered on the verifier's side,
+the latter can accurately blame cheating $j$'s by
+checking which of the conditions
+$
+y_i \hspace{0.5pt}
+=
+\hspace{0.5pt}
+g^{\hspace{0.5pt}s_i}\hspace{0.5pt} u_i\hspace{0.5pt},
+\hspace{2pt} i \in Q,
+$
+are not satisfied.
+
+Accurate blaming is sometimes possible in the general case.
+Suppose that the verifier has already
+identified some coalition of shareholders
+$Q \subset \{1, \dots, n\}$
+and an acclaimed shareholder sends a delayed proof packet
+$(u_j, s_j),\hspace{2pt} j \not \in Q,$ such that
+\eqref{orst_verification_0}
+resolves to $\mathsf{false}$
+for $Q \leftarrow Q \cup \{\hspace{0.5pt}j\hspace{0.5pt}\}$;
+the verifier can then deny access to $j$ separately
+without this affecting the session for the rest shareholders.
+More generally, suppose that the verifier has aggregated
+proof packets for an index set $Q^* \subset \{1, \dots, n\}$
+and follows an incremental verification strategy.
+That is, instead of verifying all of them at once,
+the verifier tries combinations of increasing order until
+it hits a verifying collection of size $t$.
+If feasible, the verifier can then exhaust all combinations
+$Q \subset Q^*$ of size $|Q| = t$ in order
+to possibly detect cheating indexes, while maintaining a list
+with the honest ones.
 
 \subsubsection{Key-recovery attack -- interactive aspect}\label{section_key_recovery_attack}
-This practically affects only
+This affects only
 the interactive version of the protocol
 (cf. Remark \ref{orst_interactive})
 under rather special circumstances,
 but sheds light on its inherent security structure.
 Similar to the non-distributed case,
-we employ this attack in order to derive
+we will employ this attack in order to derive
 a formal security proof by means of fork and extraction
 (cf. Section \ref{section_extractability}).
 Evidently, if a shareholder uses the same commitment
-in two canonical rounds of the interactive $\mathsf{ORST}$
-(due to, say, broken random generator)
-then its secret share leaks trivially.
-This is the key-recovery attack
-of the non-distributed case embedded into the threshold setting.
-We will show that this holds true
-even for non-canonical executions
+in two canonical executions of the interactive $\mathsf{ORST}$
+(due to, say, broken random generator),
+then its secret share leaks trivially
+like in the non-distributed case.
+This is ordinary key-recovery
+embedded into the canonical threshold setting.
+We will show that key-recovery
+is possible even for non-canonical multi-round executions
+(cf. Section \ref{section_multi_round})
 given a malicious verifier who controls $t-1$ shareholders.
 
 Let $Q = J \cup \{j\}$ be a coalition of shareholders
-such that $|J| = t-1$, $j \not \in J$
+such that $|J| = t-1$ with $j \not \in J$
 and the cluster $J$ is controlled by an adversary $\mathcal{A}^*$.
 We further assume that $\mathcal{A}^*$
-has compromised the identifying server.
-The shareholders engage in an identification session
-and generate a transcript $\{(u_i, c_i, s_i)\}_{i \in Q}$
+controls the identifying server.
+The shareholders engage in a multi-round
+session and generate a transcript $\{(u_i, c_i, s_i)\}_{i \in Q}$
 that verifies, so that
 \vspace{5pt}
 \begin{equation*}
@@ -1946,13 +2031,13 @@ where the $j$-th shareholder reuses the commitment $u_j$.
 After receiving $u_j$ on the server's side,
 $\mathcal{A}^*$ responds with a challenge $c_j^* \neq c_j$
 and tunes the rest shareholders to
-reuse their commitments $u_i,\hspace{2pt} i \in J$
+reuse the commitments $u_i,\hspace{2pt} i \in J$
 from the previous session. To each of them,
 the server responds with the same challenge
 $c_i^* = c_i$
 from the previous session.
-Subsequently, all shareholders compute honestly their respective
-responses $s_i,\hspace{2pt}i \in Q$
+Subsequently, the provers compute honestly their respective
+responses $s_i,\hspace{2pt} i \in Q,$
 and send them to the server;
 since the transcript $\{(u_i, c_i^*, s_i^*)\}_{i \in Q}$
 verifies, we again have
@@ -1988,7 +2073,7 @@ we get
 \hspace{1pt}
 )
 =
-0\hspace{1pt}.
+0\hspace{1pt}
 \vspace{5pt}
 \end{equation*}
 This eliminates $r_j$,
@@ -2011,26 +2096,50 @@ x_j
 \Big(
 	\mu_i (s_i - r_i - c_i x_i) -
 	\mu_i^* (s_i^* - r_i - c_i x_i)
-\Big)\hspace{1pt}.
+\Big)\hspace{1pt}
 \vspace{5pt}
 \end{equation}
 \noindent
-Note finally that since $|Q| = t$, the adversary can use
+Note that since $|Q| = t$, the adversary can use
 the shares $\{x_i\}_{i \in Q}$
-to compute the combined secret key
+to also recover the combined secret key
 by means of Shamir's reconstruction formula.
 
 \section{Security notions}\label{section_security_notions}
 
 \noindent
-In this section we specify the threat model for the protocols
-of Section \ref{TODO}.
+We specify the threat model for the
+$\mathsf{ORST}$ protocol.
 Formulations are given in terms of attack games within the
 asymptotic paradigm and negligibility
 is meant with respect to the bitlength
-of the group order. TODO The relevant formalism
-for discrete-log based settings
-is developed in Section \ref{section_security_formalism}.
+of the underlying group order.
+In Section \ref{section_threat_model}, we outline
+security against impersonation attacks in the abstract
+and correlate it with a pragmatic security requirement,
+namely a distributed knowledge property.
+In Section \ref{section_extractability_and_omdl},
+we argue that this property cannot be derived
+under discrete-logarithm ($\mathsf{DL}$) hardness
+without further assumptions,
+implying that security against impersontation
+attacks is most probably irreducible
+to the latter;
+however, we observe that the stronger
+one-more discrete-logarithm ($\mathsf{OMDL}$) assumption
+is sufficient for deriving the knowledge property or,
+equivalently, yields the missing assumptions
+for a formal security proof based on fork and extraction.
+In Section \ref{section_omdl_implications}
+we examine some direct consequences of $\mathsf{OMDL}$ hardness
+and narrow our attack model
+so that the sufficient conditions of extractability are satisfied.
+The working model for black-box impersonation attacks is presented
+in Section \ref{section_security_imp}
+and the $\mathsf{OMDL}$ hardness assumption
+(cf. \cite{paper_bellare_palacio}, \cite{paper_bellare_omdl})
+is summarized in Section
+\ref{section_omdl_hardness}.
 
 
 \subsection{Threat model}\label{section_threat_model}
@@ -2040,7 +2149,7 @@ security against active impersonation attacks. This refers to
 adversaries who not only passively intercept identification
 sessions before mounting their actual attack,
 but also engage in them actively by impersonating
-a legitimate verifier (e.g., by cloning a website in order
+a legitimate verifier (e.g., cloning a website in order
 to collect information about the user's credentials);
 after several such interactions, the adversary switches roles
 and attempts to identify itself against some verifier as a
@@ -2048,14 +2157,14 @@ legitimate user.
 We will not pursue this path, focusing
 on adversaries who only intercept
 identification sessions and potentially exert
-some control on the network.
+some control over the network.
 Once the relation between threshold and ordinary
 Schnorr indentification has been clarified
 from the provability viewpoint,
 security against active adversaries should be straightforward
 to establish using techniques similar to those
 of \cite{paper_bellare_palacio}
-due to the decoupled structure of the distributed protocol.
+due to the decoupled structure of the threshold protocol.
 
 \subsubsection{General threat model}\label{section_general_threat_model}
 
@@ -2065,7 +2174,7 @@ adversary $\mathcal{A}$ who compromises the keys
 of up to $t-1$ shareholders
 and attempts to impersonate some coalition
 $Q \subset \{1, \dots, n\}$,
-i.e., fabricate a proof of the form
+i.e., fabricate a proof
 $\{(u_i, s_i)\}_{i \in Q}$ that verifies.
 It does not make sense to consider adaptive adversaries
 because the proving phase consists of decoupled
@@ -2076,35 +2185,37 @@ useful information and decide which of them
 to corrupt adaptively.
 We can thus confine ourselves to the static model,
 assuming that the attacker decides from the outset the
-set of corrupted parties.\footnote{Adaptive corruption
-during the execution of an equivalent
-DKG protocol in place of
-Shamir's sharing falls under the static model. TODO}
+set of corrupted parties.
+Adaptive corruption during the execution
+of an equivalent DKG protocol in place of Shamir's sharing during
+the initial setup belongs to the threat model
+of the specific use case.
+
 One could further
 assume that $\mathcal{A}$ knows
-the public keys of individual shareholders;
-however, these are not advertised or used anyhow,
-although trivially inferred from protocol transcripts.
+the public keys of the individual shareholders;
+however, these are not used anyhow,
+although trivially inferred from protocol transcripts,
+cf. \eqref{orst_leaked_public}.
 Letting $\mathcal{A}$ know them from the outset
 corresponds to a scenario where the public shares
 become advertised within the group
 for at least some initial timespan
-(e.g., for recognition and verification purposes)
+(e.g., for mutual recognition and verification purposes)
 and $\mathcal{A}$ compromises the device
 of a shareholder who has not yet erased them.
-Still, the security proof presented in
+Still, the security proof of
 Section \ref{section_main_theorem}
 remains intact under this stronger assumption
-(cf. Remark TODO), indicating that
+(cf. Remark \ref{rem_leaked_public_shares}), indicating that
 an adversary who controls devices
 in the erasure-free model has no greater advantage than an
 adversary who only steals keys.
 
-% We fix some notation for the sake of discussion.
 Let $(x_1, \dots, x_n;\hspace{2pt} y)$
 be the given $(n, t)$-sharing of some secret $x$
 and $\mathcal{A}$ be an adversary who knows
-the shares
+the secret shares
 $\{x_i\}_{i \in J}$ with $|J| = t-1$.
 Let $Q \subset \{1, \dots, n\}$ be the
 sharholders that fall victim to impersonation
@@ -2122,15 +2233,15 @@ the adversary can change $Q$
 without this affecting its strategy,
 provided that $|Q|$ is preserved and
 its original intersection with $J$ remains included.
-We conclude with the following attack model.
+We conclude with the following general attack model.
 \begin{itemize}[label=$\bullet$,leftmargin=20pt,rightmargin=0pt]
 	\vspace{4pt}
 	\item
-		\textit{Corruption and attack statement}:
+		\textit{Attack statement and corruption}:
 			\begin{itemize}[
 				label=$\circ$,leftmargin=17pt,rightmargin=21pt
 			]
-			\vspace{0pt}
+			\vspace{3pt}
 			\item $\mathcal{A}$ chooses $J \subset \{1, \dots, n\}$
 				with $|J| = t-1$.
 				\vspace{3pt}
@@ -2141,100 +2252,72 @@ We conclude with the following attack model.
 				\vspace{3pt}
 			\item $\mathcal{C}$ runs
 				$(\hspace{1pt}x_1, \dots, x_n;\hspace{1pt} y\hspace{1pt})
-				\leftarrow D(x), \ x \leftarrow_\$ \mathbb{Z}_q$
+				\leftarrow D(x),\hspace{2pt} x \leftarrow_\$ \mathbb{Z}_q$
 				and sends $y, \{x_i\}_{i \in J}$
 				to $\mathcal{A}$.
-			\vspace{0pt}
+			\vspace{3pt}
 			\end{itemize}
 	\item \textit{Impersonation}:
 		$\mathcal{A}$ outputs a proof of the form
 		$\sigma = \{(u_i, s_i)\}_{i \in Q}$.
-\vspace{2pt}
+\vspace{5pt}
 \end{itemize}
 \hspace*{5pt}%
 \begin{minipage}{\dimexpr\textwidth-\parindent\relax}%
 \hspace{0pt}
 $\mathcal{A}$ wins if $\sigma$ is valid against $y$.
-\vspace{4pt}
+\vspace{5pt}
 \end{minipage}%
 
 \noindent
-Successful impersonation is equivalent
-to condition \eqref{orst_verification_1} for the output $\sigma$.
-%\vspace{5pt}
-%\begin{equation}\label{threat_model_verify_1}
-%\frac{1}{\ \bar{c}\ }
-%\hspace{0.5pt}
-%\sum_{i \in Q}
-%	\hspace{0.5pt}
-%	\mu_i
-%	\hspace{1.0pt}
-%	(s_i - r_i)
-%=
-%x\hspace{1pt},
-%\vspace{5pt}
-%\end{equation}
-%where $r_i \equiv \log u_i,\hspace{2pt} i \in Q$ and
-%$\{\mu_i\}_{i \in Q}$, $\bar{c}$
-%are the weights and the normalizer of the
-%output proof $\sigma$
-%(cf. Proposition \ref{orst_validity_conditions}).
-%
-%for $|Q| \ge t$, this amounts to
-%\vspace{5pt}
-%\begin{equation}\label{threat_model_verify_2}
-%\sum_{i \in Q} \mu_i s_i =
-%\sum_{i \in Q} \mu_i\hspace{1pt}(r_i + c_i x_i)
-%\vspace{5pt}
-%\end{equation}
-%(cf. Corollary \ref{orst_validity_above_prop}).
+Note that successful impersonation is equivalent
+to condition \eqref{orst_verification_1} for $\sigma$.
 
 $\mathsf{ORST}$ security against impersonation attacks should mean
 that every polynomial-time adversary wins the above game
-with at most negligible chances.
+with negligible advantage.
 The pragmatic requirement behind is that,
 if $\mathcal{A}$ outputs a proof
 $\{(u_i, s_i)\}_{i \in Q}$ that verifies,
 then it should necessarily know $x_j$ for some $j \not \in J$
-(or, equivalently, $x$). In other words,
+(and consequently $x$); or, in other words,
 impersonation should be infeasible
 without knowledge of at least $t$ secret shares.
-We will informally refer to this design requirement
+We will refer to this design requirement
 as the \textit{knowledge property}.
 
 This is instance of a more general pattern.
 Security notions for Schnorr-based protocols
 are naturally intermediated by some
 contextual knowledge property like above,
-which is the pragmatic security requirement per se.
+which is the pragmatic security requirement behind.
 Consequently,
-a security reduction should --most probably--
+a security reduction should (most probably)
 proceed by recovery
-of some contextual key in case of successful attack;
+of some contextual key in case of successful impersonation;
 by \textit{knowing} this key, the adversary solves
 the $\mathsf{DL}$ or related hard problem,
-meaning that it cannot have succeded
-(with non-negligible chances) in its attack.
+implying that it cannot have succeded
+(with non-negligible chances) in its impersonation attack.
 Key-recovery proceeds as follows.
 By rewinding the successful adversary
-at some special point and let it repeat
-successfully its attack,
+at some special point and letting it repeat
+its attempt,
 the rewinder \textit{extracts} the key
 from the partially differing transcripts
 of the two successful attacks.
 Security reduces to the hardness assumption only because
 extraction yields the solution to the underlying hard problem
-under any circumstances that allow rewinding;
+under any circumstances that allow for rewinding;
 if extraction is not possible under certain circumstances,
-security is --most probably--
+security is (most probably)
 unprovable without further assumptions.
-It should be stressed that extractability
-is only a way to formalize
-the knowledge property in a security reduction argument;
-in particular, the knowledge property
-can hold true and pragmatically
-guaruantee security without security being provable
-under the fixed hardness assumption.
+%It should be stressed that extraction
+%is only the way to capture
+%the knowledge property in a formal reduction argument;
+%this property can hold true and pragmatically
+%guaruantee security without being per se provable
+%under a given hardness assumption.
 
 Regarding $\mathsf{ORST}$,
 the relevant extraction formula for $x_j$
@@ -2243,12 +2326,12 @@ from the key-recovery attack
 of Section \ref{section_key_recovery_attack}.
 We will see
 (cf. Section \ref{section_extractability_and_omdl})
-that this formula is insufficient
-under certain circumstances,
+that this formula is insufficient for retrieving $x_j$
+under plausible circumstances,
 indicating that $\mathsf{ORST}$ security
-is --most probably-- unprovable
-under $\mathsf{DL}$ hardness alone.
-We would need extra assumptions in order
+is (most probably) irreducible
+to $\mathsf{DL}$ hardness alone.
+We need extra assumptions in order
 for security to become provable
 or, what is equivalent,
 reduce it to an easier problem than $\mathsf{DL}$.
@@ -2256,47 +2339,54 @@ reduce it to an easier problem than $\mathsf{DL}$.
 
 \subsubsection{Extractability and $(t-1)$-$\mathsf{OMDL}$ hardness}\label{section_extractability_and_omdl}
 Consider the following situation with
-$Q = J \cup \{\hspace{0.5pt}j\hspace{0.5pt}\}$,
+$Q = J \cup \{\hspace{0.5pt}j\hspace{0.5pt}\}$ and
 $|J| = t-1$.
-The shareholders $i \in J$ engage
-in a session with a verifier
-and an adversary $\mathcal{A}$
-who knows $\{x_i\}_{i \in J}$ intercepts
-their communication; in particular,
-$\mathcal{A}$ captures the transcript
-$u_i, c_i, s_i,\hspace{2pt} i \in J$.
-Subsequently, $\mathcal{A}$ fabricates a commitment $u_j$
+The shareholders $i \in Q$ engage
+in an multi-round session
+(cf. Section \ref{section_multi_round})
+with an interactive verifier
+(cf. Remark \ref{orst_interactive}),
+where an adversary $\mathcal{A}$
+acts as the acclaimed $j$-th shareholder.
+We further assume that $\mathcal{A}$
+knows the shares $\{x_i\}_{i \in J}$
+and can intercept the communication
+of the other shareholders.
+In particular, $\mathcal{A}$ captures
+$u_i, c_i,\hspace{2pt} i \in J$.
+Next, $\mathcal{A}$ fabricates a commitment $u_j$
 according to some-black-box strategy and sends it to the
-verifier, who responds with a challenge $c_j$.
-Finally, $\mathcal{A}$ fabricates a response $s_j$
+verifier, who responds with $c_j$.
+Subsequently, the shareholders
+perform some multi-party computation
+to generate responses $s_i,\hspace{2pt}i\in Q$.
+Specifically, $\mathcal{A}$ fabricates a response $s_j$
 according to some black-box strategy and sends it to the verifier.
-If the protocol is secure, the transcript
-$u_i, c_i, s_i,\hspace{2pt} i \in Q$
+If the protocol is secure, then the transcript
+$u_i, c_i, s_i,\hspace{2pt} i \in Q,$
 should verify with at most negligible chances,
 even though $\mathcal{A}$ knows
-$x_i, u_i, c_i, s_i,\hspace{2pt} i \in J$
+$x_i, u_i, c_i,\hspace{2pt} i \in J,$
 while fabricating $u_j$ and $s_j$.
 Pragmatically, if the transcript verifies,
-then $\mathcal{A}$ must necessarily know $x_j$.
+then $\mathcal{A}$ should necessarily know $x_j$.
 
-%The $\mathsf{ORST}$ knowledge property
-%is here concretely formalized as follows.
-Extraction is here concretely isntantiated as follows.
+Extraction proceeds as follows.
 Let $\mathcal{A}^*$ be an algorithm with rewindable
 black-box access to $\mathcal{A}$.
 If $\mathcal{A}$ fabricates
 $u_j,\hspace{2pt} s_j$ such that
-the transcript $u_i, c_i, s_i,\hspace{2pt} i \in Q$
+the transcript $u_i, c_i, s_i,\hspace{2pt} i \in Q,$
 verifies with probability $\varepsilon$,
-$\mathcal{A}^*$ rewinds $\mathcal{A}$
+then $\mathcal{A}^*$ rewinds $\mathcal{A}$
 exactly before sending $u_j$ and
-lets it complete a second impersonation attempt.
+lets it repeat its impersonation attempt.
 By the forking lemma
 (cf. \cite{paper_bellare_musig},
 or the reset lemma \cite{paper_bellare_palacio}),
 $\mathcal{A}$ succeeds again with probability
 $\varepsilon^* \approx \varepsilon ^ 2$.
-Let $u_i^*, c_i^*, s_i^*,\hspace{2pt}i \in Q$ be the
+Let $u_i^*, c_i^*, s_i^*,\hspace{2pt}i \in Q,$ be the
 trancript of the second impesonation attack;
 since rewinding occurs at the last commitment, we have
 \vspace{3pt}
@@ -2309,11 +2399,7 @@ since rewinding occurs at the last commitment, we have
 	\hspace{2pt}
 	c_i^* = c_i
 	\hspace{2pt}
-	\land
-	\hspace{2pt}
-	s_i^* = s_i
-	\hspace{0.5pt}
-)\hspace{1.5pt}\forall i \in J
+)\hspace{2pt}\forall i \in J
 \hspace{2pt}
 \land
 \hspace{2pt}
@@ -2321,117 +2407,100 @@ u_j^* = u_j
 \hspace{2pt}
 \land
 \hspace{2pt}
-c_j^* \neq c_j
+c_j^* \neq c_j\hspace{1pt},
 \vspace{3pt}
 \end{equation}
-where the last condition holds with overwhelming probability true.
+where the last inequality holds with overwhelming probability true.
 Extractability means that
-$\mathcal{A}^*$ \textit{should} be able to recover $x_j$
-from $x_i, u_i, c_i, s_i,\hspace{2pt} i \in J$
-and $u_j, c_j^*, s_j^*$.
-We contend that this is impossible
+$\mathcal{A}^*$ should be able to recover $x_j$
+from the transcripts of the two
+impersonation attacks and the known shares.
+We contend that this is (most probably) impossible
 \textit{without} further assumptions.
-
-Condition \eqref{rewinding_condition} allows us to apply the
+Condition \eqref{rewinding_condition} implies that the
 computations of Section \ref{section_key_recovery_attack}
-in the present context, meaning that the relevant extraction
+apply in the present context,
+meaning that the relevant extraction
 formula is the same as \eqref{orst_key_recovery}.
-In particular, $x_j$ is extractable in the form
-\vspace{5pt}
-\begin{equation}\label{threat_key_recovery}
-x_j
-\hspace{2pt}
-=
-\hspace{2pt}
-\frac{s_j - s_j^*}{c_j - c_j^*}
-\hspace{2pt}
-+
-\hspace{2pt}
-\frac{1}{\mu_j} \sum_{i \in J}
-\hspace{1pt}
-	(\mu_i - \mu_i^*)\hspace{1pt}(s_i - r_i - c_i x_i)\hspace{1pt},
-\ \ r_i \equiv \log u_i\hspace{1pt},
-\vspace{5pt}
-\end{equation}
-where we have further applied the fact $s_i^*=s_i,\forall i \in J$.
 However, $\mathcal{A}^*$
-cannot know the logarithms $r_i,\ i \in J$
+cannot know the logarithms $r_i,\ i \in J,$
 of the intercepted commitments
 and consequently cannot use
 this formula to recover $x_j$.
 Extraction is not possible in the present context.
 
-Since we have found circumstances where
+Since there exist circumstances where
 extraction cannot complete without further assumptions,
-security is --most probably--
+security is (most probably)
 unprovable without further assumptions as well.
 In particular,
 $\mathsf{ORST}$ security
-against impersonation attacks is --most probably--
-\textit{not} reducible to
-discrete-logarithm ($\mathsf{DL}$) hardness alone.
-However, $\mathcal{A}^*$ would indeed be able to extract $x_j$
+against impersonation attacks is (most probably)
+\textit{not} reducible to $\mathsf{DL}$ hardness,
+at least not until a different extraction formula is discovered.
+Nevertheless, $\mathcal{A}^*$ would indeed be able to extract $x_j$
 if it could somehow see the logarithms
 of the intercepted commitments, e.g.,
-if it controlled the respective shareholders' devices,
+if it controlled the respective shareholders' devices
 or could at least subvert their random number generator
 or other security sensitive module.
 We can codify such scenarios under the assumption
 that $\mathcal{A}^*$ is allowed to issue at most
 $t-1$ queries to a hypothetical $\mathsf{DL}$ oracle;
-extraction of $x_j$ by means of \eqref{threat_key_recovery}
-would then become automatically possible,
+extraction of $x_j$ by means of \eqref{orst_key_recovery}
+would then become possible,
 suggesting that security against impersonation attacks
 might as well be reducible to the
 $(t-1)$-$\mathsf{OMDL}$ hardness assumption
 (cf. Section \ref{section_omdl_hardness}).
 Note that $(t-1)$-$\mathsf{OMDL}$ is indeed
 an easier problem than $\mathsf{DL}$,
-plausibly yielding the extra assumptions needed
+plausibly yielding the missing assumptions needed
 for security provability.
 
 
-\subsubsection{Implications of $(t-1)$-$\mathsf{OMDL}$ hardness}\label{section_implications}
+\subsubsection{Implications of $(t-1)$-$\mathsf{OMDL}$ hardness}\label{section_omdl_implications}
 
 The black-box pattern of the previous section
 is rather restricted as compared to
-the general attack model for $\mathsf{ORST}$
-(cf. Section \ref{section_general_threat_model}).
+the general attack model of
+Section \ref{section_general_threat_model}.
 This is because $\mathcal{A}$ does
 not influence the compromised shareholders,
 mounting its actual attack only after collecting their
 transcripts; in particular,
 the fabrication of $u_j$ and $s_j$
-is deferred until after $u_i, s_i,\hspace{2pt} i \in J$
+is deferred until after $u_i, c_i,\hspace{2pt} i \in J,$
 have resolved,
 in order for extractability failure
 to be demonstrated in the simplest possible way
-(i.e., rewinding instead of some more complicated forking).
-At the same moment, the unprovability argument
+(i.e., rewinding instead of some more complicated forking argument).
+The same argument
 indicates in which way security becomes provable under
 the stronger $(t-1)$-$\mathsf{OMDL}$ hardness assumption.
 Specifically, in order to be able to apply extraction,
-it seems that $\mathcal{A}^*$ should at least reproduce
+$\mathcal{A}^*$ should at least reproduce
 the conditions of Remark \ref{section_key_recovery_attack}
 and let $\mathcal{A}$ operate in that context.
-While this remains more restricted than the general attack model
-of Section \ref{section_general_threat_model},
+While this remains more restricted than the general attack model,
 it generalizes by far the restricted attack pattern of Section
 \ref{section_extractability_and_omdl}, allowing
 $\mathcal{A}$ to fabricate $u_j$ before the rest shareholders
-send their commitments and moreover control their responses.
+send their commitments and also mount its own responses
+by obstructing their communication.
 We propose the following preliminary attack model for $\mathcal{A}$,
-representing a tradeoff between the general attack model
+representing a tradeoff between
+the general attack model of Section \ref{section_general_threat_model}
 and security provability
 under the $(t-1)$-$\mathsf{OMDL}$ hardness assumption.
 \begin{itemize}[label=$\bullet$,leftmargin=20pt,rightmargin=0pt]
-	\vspace{0pt}
+	\vspace{4pt}
 	\item
-		\textit{Corruption and attack statement}:
+		\textit{Attack statement and corruption}:
 			\begin{itemize}[
 				label=$\circ$,leftmargin=17pt,rightmargin=21pt
 			]
-			\vspace{0pt}
+			\vspace{3pt}
 			\item $\mathcal{A}$ chooses $J \subset \{1, \dots, n\}$
 				with $|J| = t-1$ and sends it along with some
 				$Q \subset \{1, \dots, n\}$
@@ -2444,10 +2513,10 @@ under the $(t-1)$-$\mathsf{OMDL}$ hardness assumption.
 				\vspace{3pt}
 			\item $\mathcal{C}$ runs
 				$(\hspace{1pt}x_1, \dots, x_n;\hspace{1pt} y\hspace{1pt})
-				\leftarrow D(x), \ x \leftarrow_\$ \mathbb{Z}_q$
+				\leftarrow D(x),\hspace{2pt} x \leftarrow_\$ \mathbb{Z}_q$
 				and sends $y, \{x_i\}_{i \in J}$
 				to $\mathcal{A}$.
-			\vspace{0pt}
+			\vspace{3pt}
 			\end{itemize}
 	\item
 		\textit{Interception}:
@@ -2458,7 +2527,7 @@ under the $(t-1)$-$\mathsf{OMDL}$ hardness assumption.
 	\item \textit{Impersonation}:
 		$\mathcal{A}$ outputs a proof of the form
 		$\{(u_i, s_i)\}_{i \in Q}$.
-%\vspace{3pt}
+\vspace{4pt}
 \end{itemize}
 \hspace*{5pt}%
 \begin{minipage}{\dimexpr\textwidth-\parindent\relax}%
@@ -2469,13 +2538,12 @@ $\{(u_i, s_i)\}_{i \in Q}$ verifies against $y$.
 \end{minipage}%
 
 \noindent
-$\mathsf{ORST}$ is meant to be
-secure against impersonation attacks
-if every polynomial-time adversary wins this game
-with at most negligible advantage.
+$\mathsf{ORST}$ security against impersonation attacks
+should mean that every polynomial-time adversary wins this game
+with negligible advantage.
 
 Observe that no restrictions are yet imposed on $|Q|$,
-allowing the possibility that $\mathcal{A}$ fabricates
+allowing the adversary to fabricate
 a valid proof with less than $t$ components.
 This is plausible because proofs of this kind
 are known to exist in abundance
@@ -2485,29 +2553,32 @@ However, under the $(t-1)$-$\mathsf{OMDL}$ hardness assumption,
 fabricating such proofs can be ruled out as infeasible.
 Let $\mathcal{A}$ be a polynomial-time adversary
 that wins with $Q \subset J$ (i.e., $|Q| < t$).
-Let $J = \{\hspace{0.5pt}i_1, \dots i_{t-1}\hspace{0.5pt}\}$
-with $i_1 < \dots < i_{t-1}$,
+Write $J = \{\hspace{0.5pt}i_1, \dots i_{t-1}\hspace{0.5pt}\}$
+with
+\begin{equation*}
+i_1 < \dots < i_{t-1},
+\end{equation*}
 so that
 $Q = \{\hspace{0.5pt}i_1, \dots, i_m\}$
 for some $m \in \{1, \dots, t-1\}$.
-We will construct a $(t-1)$-$\mathsf{OMDL}$ adversary
+We construct a $(t-1)$-$\mathsf{OMDL}$ adversary
 $\mathcal{A}^*$ as a wrapper of $\mathcal{A}$
 with equal time complexity and advantage.
 When given $w_0, \dots, w_{t-1}$ by its challenger
 (cf. Game \ref{omdl_attack}),
 $\mathcal{A}^*$ sets $y \leftarrow w_0$ and
-$u_{i_k} \leftarrow w_k,\hspace{2pt} 1 \le k \le t-1$.
+$u_{i_k} \leftarrow w_k$ for $1 \le k \le t-1$.
 Next, $\mathcal{A}^*$ samples
-$x_i \leftarrow_\$ \mathbb{Z}_q,\hspace{2pt} i \in J$
-and forwards $y,\hspace{2pt} \{x_i\}_{i \in J}$ to $\mathcal{A}$.
-By the security property of Shamir's sharing
+$x_i \leftarrow_\$ \mathbb{Z}_q$ for $i \in J$
+and forwards $y, \{x_i\}_{i \in J}$ to $\mathcal{A}$.
+By the security property of Shamir's secret sharing
 (cf. Remark \ref{shamir_security}),
 $y$ and $\{x_i\}_{i \in J}$
-determine some $(n, t)$-sharing $x_1, \dots, x_n$
-of $x \equiv \log y$
+determine a $(n, t)$-sharing $x_1, \dots, x_n$
+of some $x \equiv \log y$
 indistinguishably, meaning that $\mathcal{A}^*$
-simulates perfectly the corruption phase of the game.
-Subsequently, $\mathcal{A}^*$ sends $\{u_i\}_{i \in Q}$ to $\mathcal{A}$
+simulates perfectly the corruption phase of the attack game.
+Subsequently, $\mathcal{A}^*$ sends $\{u_i\}_{i \in J}$ to $\mathcal{A}$
 and lets it proceed to impersonation;
 since its challenger has been perfectly simulated,
 $\mathcal{A}$ outputs a valid proof $\{(u_i, s_i)\}_{i \in Q}$
@@ -2518,8 +2589,11 @@ at most $t-1$ discrete-logarithm queries.
 More accurately, $\mathcal{A}^*$ queries
 \vspace{5pt}
 \begin{equation*}
-r_{i_k} \leftarrow \mathcal{O}_{\mathbb{G}}^{\mathsf{dlog}}(u_{i_k}),
+r_{i_k} \leftarrow \mathcal{O}
+	_{\hspace{1pt}\mathbb{G}}
+	^{\hspace{1pt}\mathsf{dlog}}(u_{i_k}),
 \ \ 1 \le k \le t-1
+\hspace{1pt},
 \vspace{5pt}
 \end{equation*}
 and uses $r_{i_k},\hspace{2pt} 1 \le k \le m$ to compute $x$.
@@ -2532,28 +2606,29 @@ In short, if $\mathcal{A}$ succeeds
 with non-negligible probability, then $\mathcal{A}^*$
 solves the $(t-1)$-$\mathsf{OMDL}$ problem with equal advantage,
 which contradicts the hardness assumption.
-
 This straight-line reduction shows that we can restrict attention
 to the case $J \subsetneq Q$ (i.e. $|Q| \ge t$),
 excluding the possibility of impersonating less than $t$
-shareholders (without knowledge of at least $t$ secret shares).
+shareholders without knowing $x$.
 This is evidently a security requirement for the $\mathsf{ORST}$
-protocol, captured (as should) by the $(t-1)$-$\mathsf{OMDL}$
-hardness assumption.
-On the other hand, TODO
+protocol, captured by the $(t-1)$-$\mathsf{OMDL}$
+hardness assumption; see also Remarks
+\ref{orst_validity_degrees_of_freedom} and
+\ref{orst_valid_below_rem}.
 
 \subsection{Security against impersonation attacks}\label{section_security_imp}
 
 \noindent
-TODO We conclude with the
-following model for impersonation attacks against
-the \textsf{ORST} protocol.
-Given a cyclic group $\mathbb{G} = \langle g \rangle$ of order $q$
-and integers $1 \le t \le n < q$, we define the impersonation attack
-against $\textsf{ORST}$ to be the following interactive game.
+We conclude with the following working model
+for impersonation attacks against
+$
+\mathsf{ORST}
+	_{\hspace{1pt}\mathbb{G},\hspace{0.5pt} n,\hspace{0.5pt} t},
+\hspace{2pt} 1 \le t \le n < q
+$.
 
 \begin{attack_game}\label{orst_attack_impersonation}
-\vspace{6pt}
+\vspace{3pt}
 ($
 	\mathsf{ORST}
 		_{\hspace{1pt}\mathbb{G},\hspace{0.5pt} n,\hspace{0.5pt} t}
@@ -2564,7 +2639,7 @@ Given adversary $\mathcal{A}$ and challenger $\mathcal{C}$,
 \begin{itemize}[label=$\bullet$,leftmargin=20pt,rightmargin=0pt]
 	\vspace{3pt}
 	\item
-		\textit{Corruption and attack statement}:
+		\textit{Attack statement and corruption}:
 			\begin{itemize}[
 				label=$\circ$,leftmargin=17pt,rightmargin=21pt
 			]
@@ -2595,12 +2670,12 @@ Given adversary $\mathcal{A}$ and challenger $\mathcal{C}$,
 \end{itemize}
 \hspace*{5pt}%
 \begin{minipage}{\dimexpr\textwidth-\parindent\relax}%
-\vspace{7pt}
+\vspace{5pt}
 \hspace{3pt}
 $\mathcal{A}$ wins if
 $\mathcal{V}\hspace{1pt}(y, \sigma) = \textsf{true}$.
 \end{minipage}%
-\vspace{6pt}
+\vspace{3pt}
 \end{attack_game}
 
 \noindent
@@ -2620,10 +2695,11 @@ is denoted by
 \end{equation}
 
 \noindent
-$\mathsf{ORST}$ \textit{security in $\mathbb{G}$}
-is the assumption that \eqref{orst_advantage_def}
-is negligible for every choice of the parameters
-$n,\hspace{2pt} t$ and every polynomial-time adversary $\mathcal{A}$.
+$\mathsf{ORST}$ \textit{security against impersonation attacks
+\textup{(\textit{in} $\mathbb{G}$)}}
+should mean that \eqref{orst_advantage_def}
+is negligible for every choice of $n,\hspace{2pt} t$
+and every polynomial-time adversary $\mathcal{A}$.
 
 \begin{rem}\label{rem_adversarial_components}
 (\textit{Adversarial components})
@@ -2639,7 +2715,7 @@ of the form
 \begin{equation*}\label{adversary_internal}
 (\hspace{1pt}j, J\hspace{1pt})
 \leftarrow
-\mathcal{A}_0(\hspace{2pt}\cdot\hspace{2pt}),\ \ \{(u_i, s_i)\}_{i \in Q} \leftarrow
+\mathcal{A}_0(\hspace{1pt}\cdot\hspace{1pt}),\ \ \{(u_i, s_i)\}_{i \in Q} \leftarrow
 \mathcal{\bar{A}}\hspace{0.5pt}
 	(
 		\hspace{0.5pt}
@@ -2647,12 +2723,13 @@ of the form
 		\{x_i\}_{i \in J},
 		\{u_i\}_{i \in J}
 	)
+\hspace{0.5pt},
 \vspace{5pt}
 \end{equation*}
-with the latter consuming the adversarial view
+where $\mathcal{\bar{A}}$ consumes $\mathcal{A}$'s view
 during the impersonation phase
-in order to fabricate a commitment $u_j$ and responses
-$\{s_i\}_{i \in Q}$ such that the output
+in order to fabricate $u_j$ and
+$\{s_i\}_{i \in Q}$ such that
 $\{(u_i, s_i)\}_{i \in Q}$ verifies.
 Note that, when using $\mathcal{A}$
 in a black-box reduction,
@@ -2693,18 +2770,17 @@ of equal time complexity such that
 
 \noindent
 This follows from a generic argument
-regarding any sufficiently simple adversary $\mathcal{A}$
-attacking a game $\mathsf{G}$.
+regarding any adversary $\mathcal{A}$
+attacking a sufficiently simple game $\mathsf{G}$.
 Consider the residual determinisic strategies
 $\mathcal{A}_1, \dots, \mathcal{A}_m$ obtained
 by fixing the possible values of $\mathcal{A}$'s
-random coins and let $p_i$ be the probability that
-$\mathcal{A}$ runs $\mathcal{A}_i$,
-which is itself an adversary for $\mathsf{G}$.
-We have
-\vspace{0pt}
+random coins and let $p_i$ denote the probability that
+$\mathcal{A}$ runs $\mathcal{A}_i$
+(which is itself an adversary for $\mathsf{G}$);
+we then have
+\vspace{5pt}
 \begin{equation*}
-\begin{split}
 	\mathsf{Adv}
 		^{\mathsf{G}}
 		\hspace{1pt}
@@ -2714,40 +2790,7 @@ We have
 			\hspace{1pt}
 		]
 	\hspace{2pt}
-	&=
-	\hspace{2pt}
-	\sum_{i=1}^m
-	Pr\hspace{1pt}[
-		\hspace{2pt}
-		\mathcal{A}_i \textup{ wins } \mathsf{G}
-		\hspace{3pt}
-		\land
-		\hspace{3pt}
-		\mathcal{A} \textup{ runs } \mathcal{A}_i
-		\hspace{2pt}
-	]\\[3pt]
-	&=
-	\hspace{2pt}
-	\sum_{i=1}^m
-	Pr\hspace{1pt}[
-		\hspace{2pt}
-		\mathcal{A} \textup{ runs } \mathcal{A}_i
-		\hspace{2pt}
-	]
-	\hspace{1pt}
-	\cdot
-	\hspace{1pt}
-	Pr\hspace{1pt}[
-		\hspace{2pt}
-		\mathcal{A}_i \textup{ wins }
-			\mathsf{G}
-		\hspace{1pt}
-		\mid
-		\hspace{1pt}
-		\mathcal{A} \textup{ runs } \mathcal{A}_i
-		\hspace{2pt}
-	]\\[3pt]
-	&=
+	=
 	\hspace{2pt}
 	\sum_{i=1}^m
 	\hspace{2pt}
@@ -2762,12 +2805,10 @@ We have
 			\hspace{1pt}
 			\mathcal{A}_i
 			\hspace{1pt}
-		]\hspace{1pt}\\[0pt]
-\end{split}
-\vspace{6pt}
+		]\hspace{1pt}
+\vspace{5pt}
 \end{equation*}
-Since $p_1 + \dots + p_m = 1$,
-we get
+Since $p_1 + \dots + p_m = 1$, we conclude
 $
 \mathsf{Adv}
 	^{\mathsf{G}}
@@ -2797,46 +2838,44 @@ is a parametrized extension of
 the discrete-logarithm ($\mathsf{DL}$) problem,
 yielding a sequence of increasingly easier related problems.
 It was introduced in
-\cite{paper_bellare_palacio},
+\cite{paper_bellare_palacio} and
 \cite{paper_bellare_omdl}
-as a way to capture protocol design properties
+as a way to capture design properties
 that pragmatically guarantee security under
 $\mathsf{DL}$ hardness
 while most probably being themselves irreducible to the latter.
 Note that reducing security to an easier problem,
-(i.e., a stronger hardness assumption)
-amounts usually to assumptions
-regarding the black-box adversary
-(i.e., a narrower threat model).
-This represents a tradeoff between the high plausibility
+i.e., a stronger hardness assumption,
+is usually equivalent to assumptions
+regarding the black-box adversary,
+i.e., a narrower threat model.
+This represents a tradeoff between the higher plausibility
 of the weaker assumption
-and having a concrete security proof at hand,
-which may otherwise be impossible.
-Specifically, under the extra assumptions
+and having a security proof at hand,
+which may otherwise be intractable.
+Under the extra assumptions
 a formal security proof may become possible,
 while a proof under the weaker
-assumption may not even exist;
+assumption alone may not even exist;
 since the solvability of the harder problem
 implies solvability of the easier one,
-the restricted security proof may provide good
+the restricted proof can be regarded as
 evidence that security holds
 true under the weaker assumption.
-TODO
-The tradeoff is ofter made in the context of
-secure multi-party protocols,
-where the adversary has extended control
-on its execution environment through the corrupted shareholders.
-TODO ref to our case
+In our case, the pragmatic requirement
+that cannot be reduced to $\mathsf{DL}$ hardness
+is the knowledge property
+from Section \ref{section_threat_model}.
 
-The \textit{discrete-logarithm \textup{($\mathsf{DL}$)} oracle}
-for $\mathbb{G} = \langle g \rangle$
-is a hypothetical polynomial-time procedure of the form
+By \textit{discrete-logarithm \textup{($\mathsf{DL}$)} oracle}
+for a cyclic group $\mathbb{G} = \langle g \rangle$
+is meant a hypothetical polynomial-time procedure of the form
 $z \leftarrow \mathcal{O}_{\mathbb{G}}^{\mathsf{dlog}}(u),
 \hspace{2pt} u \in \mathbb{G},$
 such that
 $u = g ^ z$.
 Given $\mathcal{O}_{\mathbb{G}}^{\mathsf{dlog}}$
-and integer $t \ge 1$,
+and an integer $t \ge 1$,
 we consider the following problem.
 
 \begin{attack_game}\label{omdl_attack}
@@ -2899,13 +2938,14 @@ $\mathsf{DL}$.
 \section{Security proof}\label{section_security_proof}
 
 \noindent
-We prove $\mathsf{ORST}$ security against
+In this section,
+we prove $\mathsf{ORST}$ security against
 impersonation attacks (cf. Section \ref{section_security_imp})
 under $\mathsf{OMDL}$ hardness
 (cf. Section \ref{section_omdl_hardness})
 in the random oracle model.
 The rationale behind the attack model
-is found in Section \ref{section_general_threat_model}.
+is found in Section \ref{section_threat_model}.
 
 Our reduction generalizes the rewinding argument
 of the non-distributed case in the threshold setting
@@ -2919,16 +2959,15 @@ with fixed commitments
 (cf. Remark \ref{orst_validity_degrees_of_freedom});
 it becomes useful only if the logarithms
 of the intercepted commitments
-are known to the reduction,
+are known to the reduction algorithm,
 which is the reason for reducing to
-$(t-1)$-$\textsf{OMDL}$ hardness
-(cf. Section \ref{section_extractability_and_omdl}).
+$(t-1)$-$\textsf{OMDL}$ hardness.
 Moreover, extraction presupposes the fixture of
 all but one challenges,
 making rewinding useless
 in the threshold setting. We overcome this obstacle
 by employing the Local Forking Lemma
-(cf. Section \ref{section_local_forking_lemma})
+(cf. Appendix \ref{section_local_forking_lemma})
 and ensuring that the conditions for its applicability
 are satisfied. The attack simulator is presented
 in Section \ref{section_simulated_impersonation_attack}
@@ -2937,12 +2976,12 @@ and its components are developed in Sections
 \ref{section_hash_oracles}.
 
 
-\subsection{Index mapping}\label{section_index_mapping}
+\subsection{Index mapping formalism}\label{section_index_mapping}
 
 Given $J \subset \{1, \dots, n\}$,
 we can represent any collection
 $\alpha_1, \dots, \alpha_m$ with $|J|=m$
-in the form $\{\beta\}_{i \in J}$ using the
+as $\{\beta_i\}_{i \in J}$ using the
 $\mathsf{Zip}$ operator below.
 
 \begin{minipage}[t]{0.46\textwidth}
@@ -3211,9 +3250,9 @@ but draws hashes
 from $h$ instead of sampling them uniformly;
 upon inserting a fresh hash to $\mathsf{Map}_1$,
 it takes care to
-(1) update the tape pointer so that
+(i) update the tape pointer so that
 the next predefined hash be available on demand and
-(2) insert the current pointer value to $\mathsf{Map}_2$
+(ii) insert the current pointer value to $\mathsf{Map}_2$
 so that the respective query can be easily tracked by order.
 Evidently, if $h_1, \dots, h_n$
 are uniformly sampled from the codomain of $H$,
@@ -3271,10 +3310,21 @@ $
 		\hspace{0.5pt}
 $
 that simulates Game \ref{orst_attack_impersonation}
-with adversary $\mathcal{A}$
-if $H$ is a random oracle.
-Roughly speaking, it accepts as input
-the ingredients for the adversarial view and outputs
+for the adversary $\mathcal{A}$,
+provided that $H$ is modelled as a random oracle.
+Roughly speaking,
+$
+\mathcal{S}
+		\hspace{.5pt}
+		[
+			\hspace{0.5pt}
+			\mathcal{A}
+			\hspace{1pt}
+		]
+		\hspace{0.5pt}
+$
+accepts
+the ingredients of $\mathcal{A}$'s view and outputs
 the fabricated proof along with
 a success index for $\mathcal{A}$'s impersonation attempt.
 The simulation is perfect meaning that,
@@ -3285,7 +3335,7 @@ winning the real game.
 
 More accurately, given a black-box adversary $\mathcal{A}$
 to game $\mathsf{ORST}_{\hspace{1pt}\mathbb{G}, n, t}$,
-the desired simulation is wrapper of $\mathcal{A}$ of the form
+the desired simulation is a wrapper of $\mathcal{A}$ of the form
 \vspace{5pt}
 \begin{equation*}
 	(
@@ -3347,7 +3397,7 @@ in this case $m \ge 1$.
 Finally, an $\mathsf{ORST}$-verifier $\mathcal{V}$
 is included with access to the same hash oracle for
 verifying the output of the embedded adversary.
-The exact procedure is Algorithm \ref{alg_attack_simulator}.
+The exact procedure is shown in Algorithm \ref{alg_attack_simulator}.
 
 \begin{minipage}{0.94\textwidth}
 \begin{center}
@@ -3490,7 +3540,7 @@ the simulation returns $(k, (j, \sigma))$; otherwise, it
 returns $(\hspace{1pt}0, (j, \sigma))$
 to indicate failure.
 
-\begin{figure}%[H]
+\begin{figure}[H]
  \begin{overpic}[scale=0.8]{reduction.pdf}
   \put (89,62.50) {$\mathcal{S}\hspace{1pt}[\hspace{1pt}\mathcal{A}\hspace{1pt}]$}
   %\put (20,72.50) {$y^*, \{x_i\}_{i \in J}, \{u_i\}_{i \in J}, h_1, \dots, h_m$}
@@ -3502,7 +3552,7 @@ to indicate failure.
   \put (17.0,53.0) {$\mathcal{D}$}
   \put (33,58.50) {$j, J$}
   %\put (35.0,50.4) {$\{x_i\}_{i \in J},\hspace{2pt} y$}
-  \put (29.5,52.9) {$\{x_i\}_{i \in J},\hspace{1pt} y$}
+  \put (30.0,52.9) {$y,\hspace{1pt} \{x_i\}_{i \in J}$}
   \put (62,57) {$\mathcal{A}$}
   \put (59,49.5) {$\mathcal{\bar{A}}$}
   \put (30.5,43.5) {$\{u_{i}\}_{i \in J}$}
@@ -3529,15 +3579,31 @@ to indicate failure.
   \put (71.5,03.5) {$j$}
   \put (74.9,03.5) {$\sigma$}
  \end{overpic}
-\caption{The $\mathsf{ORST}_{\hspace{1pt}\mathbb{G}, n, t}$ simulator}
+\caption{The
+$\mathsf{ORST}
+	_{\hspace{1pt}\mathbb{G}, n, t}
+	^{\hspace{1pt}\mathbf{imp}}
+$
+simulator}
 \label{fig_attack_simulator}
 \end{figure}
 
 \begin{prop}\label{orst_simulated_impersonation_attack_prop}
-\textup{($\mathsf{ORST}_{\hspace{1pt}\mathbb{G}, n, t}$
+\textup{($\mathsf{ORST}
+	_{\hspace{1pt}\mathbb{G}, n, t}
+	^{\hspace{1pt}\mathbf{imp}}
+$
 -- \textit{Perfect simulation})}
-If $H$ is modelled as a random oracle,
-$\mathcal{S}\hspace{1pt}[\hspace{1pt}\mathcal{A}\hspace{1pt}]$
+If $H$ is modelled as a random oracle, then
+$
+\mathcal{S}
+		\hspace{.5pt}
+		[
+			\hspace{0.5pt}
+			\mathcal{A}
+			\hspace{1pt}
+		]
+$
 simulates Game \textup{\ref{orst_attack_impersonation}} perfectly
 if invoked with uniformly random input,
 in the sense that the real and simulated game executions
@@ -3629,6 +3695,7 @@ as follows.
 \begin{cor}\label{equality_intermediate}
 Given an adversary $\mathcal{A}$
 for Game \textup{\ref{orst_attack_impersonation}},
+there holds
 \vspace{5pt}
 \begin{equation}
 	\mathsf{acc}\hspace{0.5pt}(
@@ -3816,13 +3883,14 @@ Then $\sigma,\hspace{1pt}\sigma^*$ are of the form
 \{(u_i, c_i, s_i)\}_{i \in Q},\ \{(u_i, c_i^*, s_i^*)\}_{i \in Q}
 \vspace{5pt}
 \end{equation}
-respectively and subject to the contraint
+respectively and subject to the constraint
 \vspace{5pt}
 \begin{equation}\label{orst_forked_challenges}
 c_j \neq c_j^*
 \ \land
 \ c_i = c_i^*,\hspace{2pt}
 \forall i \in Q \setminus \{\hspace{0.5pt}j\hspace{0.5pt}\}
+\hspace{0.5pt}.
 \vspace{5pt}
 \end{equation}
 Moreover, the extraction formula
@@ -3909,8 +3977,7 @@ Extraction follows because $c_j - c_j^* \neq 0$.
 \subsection{Main theorem}\label{section_main_theorem}
 
 \noindent
-TODO: Refer to the appendix when needed:
-deterministic operators without narrowing the threat model
+We proceed to the final reduction argument.
 
 \begin{thm}\label{theorem_orst_security}
 \textup{(\textsf{ORST} --
@@ -3985,8 +4052,7 @@ and then use it to solve
 $\mathsf{OMDL}_{\hspace{1pt}\mathbb{G},\hspace{0.5pt} t-1}$
 with comparable chances.
 We assume without loss of generality that $\mathcal{A}$
-is deterministic (cf. TODO).
-
+is deterministic (cf. Remark \ref{rem_deterministic_adversaries}).
 When given $w_0, w_1, \dots, w_{t-1}$
 by its challenger
 (cf. Game \ref{omdl_attack}),
@@ -3994,7 +4060,7 @@ $\mathcal{A}^*$ operates as
 shown in Algorithm \ref{alg_omdl_adversary}.
 Observe that $\mathcal{A}^*$
 aborts if the fork aborts,
-that is, unless both attacks by $\mathcal{A}$
+that is, unless both impersonation attacks by $\mathcal{A}$
 are successful;
 otherwise, the fork fulfills the conditions of
 Proposition \ref{orst_extractability_prop}
@@ -4006,55 +4072,46 @@ $\mathcal{S}\hspace{0pt}[
     \mathcal{A}
     \hspace{0pt}
     ]
-$ (cf. Algorithm \ref{alg_attack_simulator}),
-the implicit attacks of step 3
+$,
+the attacks of step 3
 unfold against the sharing $(x_1, \dots, x_n;\hspace{2pt} y)$
 that is uniquely determined by the constraint
-\vspace{3pt}
+\vspace{5pt}
 \begin{equation}\label{mt_1}
 \{x_i\}_{i \in J} =
 \mathsf{Zip}\hspace{0.75pt}
 (\hspace{0.5pt}x_1^*, \dots, x_{t-1}^*)
 \ \land
 \ y^* = g ^ {x_j}
-\vspace{3pt}
+\vspace{5pt}
 \end{equation}
 (cf. Lemma \ref{shamir_sharing_simulation_lemma}).
 Similarly, the intercepted commitments
-$u_i,\hspace{2pt} i \in J$
+$u_i,\hspace{2pt} i \in J,$
 comprise of the input values $w_1, \dots, w_{t-1}$;
 in particular,
 \vspace{3pt}
-\begin{equation*}\label{mt_2}
+\begin{equation}\label{mt_2}
 \{u_i\}_{i \in J} =
 \mathsf{Zip}\hspace{0.75pt}
 (\hspace{0.5pt}w_1, \dots, w_{t-1})
 \vspace{3pt}
-\end{equation*}
+\end{equation}
 (cf. Algorithm \ref{alg_attack_simulator}, step 4).
-In steps 9-14 $\mathcal{A}^*$ computes the
+In steps 9-14, $\mathcal{A}^*$ computes the
 parameters needed for the extraction at step 15.
 The compromised shares are recomputed at step 13 using the first
 part of constraint \eqref{mt_1}, while the logarithms
-of $u_i,\hspace{2pt} i \in J$ are retrieved
+of $u_i,\hspace{2pt} i \in J,$ are retrieved
 at step 14
 by submitting them to the $\mathsf{DL}$ oracle.
 Since $y^* = w_0$,
 Proposition \ref{orst_extractability_prop} ensures
 that the computation of step 15 yields
-\vspace{3pt}
-\begin{equation}\label{mt_3}
-z_0 = \log w_0
-\vspace{3pt}
-\end{equation}
+$z_0 = \log w_0$.
 Similarly, due to \eqref{mt_2},
 the operation of step 17 yields
-\vspace{3pt}
-\begin{equation*}\label{mt_4}
-z_i = \log w_i,
-\ \ 1 \le i \le t-1
-\vspace{3pt}
-\end{equation*}
+$z_i = \log w_i,\hspace{2pt} 1 \le i \le t-1$.
 In short,
 $z_0, z_1, \dots, z_{t-1}$ is the solution
 to the original problem instance and $\mathcal{A}^*$
@@ -4142,9 +4199,44 @@ Local Forking Lemma
 and Corollary \ref{equality_intermediate}.
 \end{proof}
 
-\begin{rem}\label{rem_public_shares}
-(\textit{Known public shares})
-TODO
+\begin{rem}\label{rem_leaked_public_shares}
+(\textit{Leaked public shares})
+The adversary $\mathcal{A}$ of Game \ref{orst_attack_impersonation}
+is not given the public shares
+$y_i = g ^ {x_i},\hspace{2pt} 1 \le i \le n$.
+This is plausible because these are not advertised or used
+in the $\mathsf{ORST}$ protocol.
+On the other hand, a real-life attacker has most probably
+knowledge of these shares before mounting
+its actual impersonation attack.
+For example, a man-in-the middle who intercepts multiple
+identification sessions can infer the public shares
+from the captured proof packets in the form
+\eqref{orst_leaked_public};
+or, if the shareholders store the public shares
+locally for, say, mutual verification purposes,
+an attacker who compromises the device of a single shareholder
+can learn them immediately (if not erased).
+However, the proof of Theorem \ref{theorem_orst_security}
+remains intact under this stronger assumption.
+Supposing that the $y_i$'s must be given to $\mathcal{\bar{A}}$
+during the corruption phase of the simulated impersonation attack
+(cf. steps 3-5, Algorithm \ref{alg_attack_simulator}),
+these can be easily computed as
+\vspace{5pt}
+\begin{equation*}
+\hspace{42pt}
+y_k \leftarrow
+\sqrt[\leftroot{0}\uproot{10}\lambda_k^k]{\hspace{1.5pt}y\hspace{1.5pt}
+\Big(\hspace{1pt}\prod_{i \in J} y_i^{\lambda_i^k}\hspace{1pt}\Big)^{-1}},
+\hspace{4pt} k \in \{1, \dots, n\} \setminus J\hspace{1pt},
+\vspace{5pt}
+\end{equation*}
+where $y_i \equiv g ^ {x_i}$ for $i \in J$
+and $\{\lambda_i^k\}_i$
+are the Lagrange interpolation coefficients for
+$J \cup \{\hspace{0.5pt}k\hspace{0.5pt}\}$
+(cf. Remark \ref{shamir_reconstruction}).
 \end{rem}
 
 \begin{minipage}{0.97\textwidth}
@@ -4293,10 +4385,13 @@ TODO
     		\vspace{6pt}
     	\State
     		Query $r_i \leftarrow
-    		\mathcal{O}_{\mathbb{G}}^{\mathsf{dlog}}\hspace{1pt}(
+    		\mathcal{O}
+    			_{\hspace{1pt}\mathbb{G}}
+    			^{\hspace{1pt}\mathsf{dlog}}\hspace{1pt}(
     		\hspace{0pt}u_i\hspace{0pt}),
     		\ i \in J$
-    		\hspace{38pt}// \textit{$t-1$ queries}\vspace{8pt}
+    		\hspace{38pt}// \textit{max $\hspace{2.5pt}t-1$ queries}
+    		\vspace{8pt}
     	\State
     		Compute
     		\vspace{8pt}
@@ -4336,8 +4431,8 @@ TODO
 \section{Shamir's secret sharing}\label{section_shamir}
 
 \noindent
-We list for reference some elementary facts about
-the sharing scheme introduced by Shamir
+We list for reference some basic facts regarding
+the secret sharing scheme introduced by Shamir
 \cite{paper_shamir}.
 Given a cyclic group $\mathbb{G} = \langle g \rangle$ of order $q$,
 we denote by
@@ -4354,7 +4449,7 @@ $
 		\hspace{0.5pt}
 	]
 $
-be the ring of polynomials of degree
+the ring of polynomials of degree
 at most $t-1$ over $\mathbb{Z}_q$.
 
 \begin{defn}\label{shamir_definition}
@@ -4459,7 +4554,7 @@ Pointcheval and Stern
 (\cite{paper_pointcheval_stern_1}, \cite{paper_pointcheval_stern_2})
 as part of the rewinding methodology for proving
 the security of Fiat-Shamir based signature schemes
-in the random oracle; it was further elaborated as
+in the random oracle. It was later elaborated as
 General Forking Lemma by Bellare and Neven
 \cite{paper_bellare_musig}, who
 abstracted away the signature specific details.
@@ -4501,7 +4596,7 @@ in respective order (cf. Section \ref{section_hash_oracles}).
 Think of $\theta$ as the random coins,
 $k$ as the \textit{main} output and
 $\tau$ as the \textit{side} output.
-If $k \ge 1$, the main output may be thought of as indicating
+If $k \ge 1$, then the main output can be thought of as indicating
 some peculiarity of the $k$-th distinct
 oracle query regarding the side output,
 while the case $k = 0$ is interpreted as failure.
@@ -4553,6 +4648,78 @@ taken over the possible coins and oracle outputs.
 The \textit{local fork of} $\mathcal{S}$ is
 Algorithm \ref{alg_local_fork}.
 \end{defn}
+
+\noindent
+That is, if $\mathcal{S}$ accepts, then
+the fork reruns it with the same input except
+for the $k$-th hash, which is
+afresh uniformly sampled; otherwise it aborts.
+When the second execution completes, the fork checks
+whether $\mathcal{S}$ accepts again under the constraint
+$h_k^* \neq h_k$ and returns both side outputs;
+otherwise, it aborts. We denote by
+\vspace{5pt}
+\begin{equation}\label{local_forking_forkacc}
+\mathsf{forkAcc}
+\hspace{0.3pt}
+(
+	\hspace{0.3pt}
+	\mathcal{S}
+	\hspace{0.3pt}
+)
+\hspace{1pt}
+=
+\hspace{1pt}
+Pr\hspace{1pt}[\hspace{1.5pt}b = 1 :
+\hspace{2pt}(
+	\hspace{0.5pt}
+	b,
+	\mathsf{out}
+	\hspace{0.5pt}
+)
+\leftarrow
+\mathsf{LocalFork}_{\mathcal{S}}
+	\hspace{0.3pt}(
+	\hspace{0.3pt}
+	\theta
+	\hspace{0.3pt}
+),
+\ \theta \leftarrow_\$ \Theta
+\hspace{1.5pt}]\hspace{1pt}
+\vspace{8pt}
+\end{equation}
+the probability that the local fork does not abort
+taken over the possible random coins of $\mathcal{S}$.
+The local forking lemma asserts the following lower bound.
+
+\begin{lem}\label{local_forking_lemma}
+% \hspace{-8pt}
+\textup{(\textit{Local Forking Lemma}, \cite{paper_bellare_local_forking})}
+For every deterministic algorithm $\mathcal{S}$ as in
+\eqref{local_forking_s_form} issuing $m$ distinct queries
+to a hash oracle with tape
+$[\hspace{0.75pt}h_1, \dots, h_{m}\hspace{0.75pt}]$,
+\vspace{5pt}
+\begin{equation}\label{local_forking_bound}
+\mathsf{forkAcc}
+	(
+		\mathcal{S}
+	)
+	\hspace{2pt}
+	\ge
+	\hspace{2pt}
+	\frac{1}{\hspace{2pt}m\hspace{2pt}}
+	\hspace{2pt}
+	\mathsf{acc}
+	\hspace{0.3pt}
+	(
+		\hspace{0.3pt}
+		\mathcal{S}
+		\hspace{0.3pt}
+	) ^ {\hspace{1pt}2}
+\vspace{5pt}
+\end{equation}
+\end{lem}
 
 \begin{minipage}{0.96\textwidth}
 \vspace{-5pt}
@@ -4646,183 +4813,9 @@ Algorithm \ref{alg_local_fork}.
 \vspace{0pt}
 \end{minipage}
 
-\noindent
-That is, if $\mathcal{S}$ accepts,
-the fork reruns it with the same input except
-for the $k$-th hash, which is
-afresh uniformly sampled; otherwise it aborts.
-When the second execution completes, the fork checks
-if $\mathcal{S}$ accepts again under the constraint
-$h_k^* \neq h_k$ and returns both side outputs;
-otherwise, it aborts. We denote by
-\vspace{5pt}
-\begin{equation}\label{local_forking_forkacc}
-\mathsf{forkAcc}
-\hspace{0.3pt}
-(
-	\hspace{0.3pt}
-	\mathcal{S}
-	\hspace{0.3pt}
-)
-\hspace{1pt}
-=
-\hspace{1pt}
-Pr\hspace{1pt}[\hspace{1.5pt}b = 1 :
-\hspace{2pt}(
-	\hspace{0.5pt}
-	b,
-	\mathsf{out}
-	\hspace{0.5pt}
-)
-\leftarrow
-\mathsf{LocalFork}_{\mathcal{S}}
-	\hspace{0.3pt}(
-	\hspace{0.3pt}
-	\theta
-	\hspace{0.3pt}
-),
-\ \theta \leftarrow_\$ \Theta
-\hspace{1.5pt}]\hspace{1pt}
-\vspace{8pt}
-\end{equation}
-the probability that the local fork does not abort
-taken over the possible random coins of $\mathcal{S}$.
-The local forking lemma asserts the following lower bound.
-
-\begin{lem}\label{local_forking_lemma}
-% \hspace{-8pt}
-\textup{(\textit{Local Forking Lemma}, \cite{paper_bellare_local_forking})}
-For every deterministic algorithm $\mathcal{S}$ as in
-\eqref{local_forking_s_form} issuing $m$ distinct queries
-to a hash oracle with tape
-$[\hspace{0.75pt}h_1, \dots, h_{m}\hspace{0.75pt}]$,
-\vspace{5pt}
-\begin{equation}\label{local_forking_bound}
-\mathsf{forkAcc}
-	(
-		\mathcal{S}
-	)
-	\hspace{2pt}
-	\ge
-	\hspace{2pt}
-	\frac{1}{\ m\ }
-	\hspace{2pt}
-	\mathsf{acc}
-	\hspace{0.3pt}
-	(
-		\hspace{0.3pt}
-		\mathcal{S}
-		\hspace{0.3pt}
-	) ^ {\hspace{1pt}2}
-\vspace{5pt}
-\end{equation}
-\end{lem}
-
-
-\begin{thebibliography}{9}
-
-\bibitem{paper_shamir}
-Adi Shamir.
-How to Share a Secret.
-Commun. ACM 1979.
-
-%\bibitem{paper_omdl_ggm}
-%Balthazar Bauer, Georg Fuchsbauer, Antoine Plouviez.
-%The One-More Discrete Logarithm Assumption
-%in the Generic Group Model.
-%ASIACRYPT 2021.
-
-\bibitem{paper_schnorr}
-Claus-Peter Schnorr.
-Efficient Signature Generation by Smart Cards.
-Journal of Cryptogoly 1991, p. 161-174
-
-\bibitem{paper_frost}
-C. Komlo and I. Goldberg.
-FROST: Flexible Round-Optimized Schnorr Threshold Signatures.
-SAC 2020.
-
-%\bibitem{paper_fiat_shamir_pitfalls}
-%David Bernhard, Olivier Pereira, Bogdan Warinschi.
-%How not to Prove Yourself: Pitfalls of the Fiat-Shamir Heuristic
-%and Applications to Helios.
-%https://eprint.iacr.org/2016/771.pdf.
-
-\bibitem{paper_pointcheval_stern_1}
-David Pointcheval, Jacques Stern.
-Security proofs for Signature Schemes.
-Advances in Cryptology - EUROCRYPT '96, International Conference
-on the Theory and Application of Cryptographic Techniques,
-Saragossa, Spain, May 12-16, 1996, Proceeding.
-
-\bibitem{paper_pointcheval_stern_2}
-David Pointcheval, Jacques Stern.
-Security Arguments for Digital Signatures and Blind Signatures.
-Journal of Cryptology, 2000, p. 361-396
-
-\bibitem{paper_stinson_strobl}
-Douglas R. Strinson, Reto Stroble.
-Provably Secure Distributed Schnorr
-Signatures and a $(t, n)$ Threshold Scheme for Implicit Certificates.
-ACISP 2001.
-
-\bibitem{paper_threshold_zk}
-Marcel Keller, Gert Læssøe Mikkelsen, Andy Rupp:
-Efficient Threshold Zero-Knowledge with
-Applications to User-Centric Protocols. ICITS 2012: 147-166
-
-\bibitem{paper_homomorphism}
-Maurer, U.M.: Unifying zero-knowledge proofs of knowledge.
-In: Preneel, B. (ed.) AFRICACRYPT. Lecture Notes in Computer
-Science, vol. 5580, pp. 272–286. Springer (2009)
-
-\bibitem{paper_bellare_palacio}
-Mihir Bellare, Adriana Palacio.
-GQ and Schnorr Identification Schemes: Proofs
-of Security against Impersonation under
-Active and Concurrent Attacks.
-CRYPTO 2002.
-
-\bibitem{paper_bellare_omdl}
-Mihir Bellare, Chanathip Namprempre, David Pointcheval,
-and Michael Semanko. The one-more-RSA-inversion problems
-and the security of Chaum’s blind signature scheme.
-Journal of Cryptology, 16(3):185–215, June 2003.
-
-\bibitem{paper_bellare_local_forking}
-Mihir Bellare, Wei Dai, and Lucy Li. The local forking lemma and its
-application to deterministic encryption.
-In S. D. Galbraith and S. Moriai, editors,
-Advances in Cryptology - ASIACRYPT 2019 - 25th International Conference
-on the Theory and Application of Cryptology and Information Security,
-Kobe, Japan, December 8-12, 2019, Proceedings, Part III, volume 11923 of
-Lecture Notes in Computer Science, pages 607–636. Springer, 2019.
-
-\bibitem{paper_bellare_musig}
-Mihir Bellare and G. Neven. Multi-signatures in the plain public-key model
-and a general forking lemma. In A. Juels, R. N. Wright, and S. D. C.
-di Vimercati, editors, Proceedings of the 13th ACM Conference on Computer
-and Communications Security, CCS 2006, Alexandria, VA, USA, October
-30 - November 3, 2006, pages 390–399. ACM, 2006.
-
-%\bibitem{paper_bellare_goldreich}
-%Mihir Bellare, Oded Goldreich.
-%On Probabilistic versus Deterministic Provers
-%in the Definition of Proofs Of Knowledge.
-%Cryptology ePrint Archive, Paper 2006/359.
-
-%\bibitem{paper_bellare_nizk}
-%M. Bellare.
-%Lecture on NIZKS: A Concrete Security Treatment.
-%August 2021.
-
-%\bibitem{paper_gennaro}
-%R. Gennaro S. Jarecki H. Krawczyk and T. Rabin.
-%Secure distributed key generation for discrete-log based cryptosystems.
-%In Eurocrypt ’99, pages 295–310,
-%1999.
-
-\end{thebibliography}
+\bibliographystyle{plain}
+%\bibliographystyle{alpha}
+\bibliography{refs}
 
 \end{document}
 

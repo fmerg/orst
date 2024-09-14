@@ -1,0 +1,80 @@
+\begin{thebibliography}{10}
+
+\bibitem{paper_bellare_local_forking}
+Mihir Bellare, Wei Dai, and Lucy Li.
+\newblock The local forking lemma and its application to deterministic
+  encryption.
+\newblock Cryptology {ePrint} Archive, Paper 2019/1017, 2019.
+
+\bibitem{paper_bellare_omdl}
+Mihir Bellare, Chanathip Namprempre, David Pointcheval, and Michael Semanko.
+\newblock The one-more-rsa-inversion problems and the security of chaum's blind
+  signature scheme.
+\newblock {\em J. Cryptology}, 16:185--215, 2003.
+
+\bibitem{paper_bellare_musig}
+Mihir Bellare and Gregory Neven.
+\newblock Multi-signatures in the plain public-key model and a general forking
+  lemma.
+\newblock In {\em Conference on Computer and Communications Security}, 2006.
+
+\bibitem{paper_bellare_palacio}
+Mihir Bellare and Adriana Palacio.
+\newblock Gq and schnorr identification schemes: Proofs of security against
+  impersonation under active and concurrent attacks.
+\newblock In {\em Advances in Cryptology - CRYPTO 2002, 22nd Annual
+  International Cryptology Conference, Santa Barbara, California, USA, August
+  18-22, 2002, Proceedings}, volume 2442 of {\em Lecture Notes in Computer
+  Science}, pages 162--177. Springer, 2002.
+
+\bibitem{paper_threshold_zk}
+Marcel Keller, Gert~Læssøe Mikkelsen, and Andy Rupp.
+\newblock Efficient threshold zero-knowledge with applications to user-centric
+  protocols.
+\newblock Cryptology {ePrint} Archive, Paper 2012/306, 2012.
+
+\bibitem{paper_frost}
+Chelsea Komlo and Ian Goldberg.
+\newblock {FROST}: Flexible round-optimized schnorr threshold signatures.
+\newblock Cryptology {ePrint} Archive, Paper 2020/852, 2020.
+
+\bibitem{paper_homomorphism}
+Ueli~M. Maurer.
+\newblock Unifying zero-knowledge proofs of knowledge.
+\newblock In Bart Preneel, editor, {\em Progress in Cryptology - {AFRICACRYPT}
+  2009, Second International Conference on Cryptology in Africa, Gammarth,
+  Tunisia, June 21-25, 2009. Proceedings}, volume 5580 of {\em Lecture Notes in
+  Computer Science}, pages 272--286. Springer, 2009.
+
+\bibitem{paper_pointcheval_stern_1}
+David Pointcheval and Jacques Stern.
+\newblock Security proofs for signature schemes.
+\newblock In {\em Advances in Cryptology - EUROCRYPT '96, International
+  Conference on the Theory and Application of Cryptographic Techniques,
+  Saragossa, Spain, May 12-16, 1996, Proceeding}, volume 1070 of {\em Lecture
+  Notes in Computer Science}, pages 387--398. Springer, 1996.
+
+\bibitem{paper_pointcheval_stern_2}
+David Pointcheval and Jacques Stern.
+\newblock Security arguments for digital signatures and blind signatures.
+\newblock {\em J. Cryptology}, 13:361--396, 2000.
+
+\bibitem{paper_schnorr}
+Claus-Peter Schnorr.
+\newblock Efficient signature generation by smart cards.
+\newblock {\em Journal of Cryptology}, 4:161--174, 2004.
+
+\bibitem{paper_shamir}
+Adi Shamir.
+\newblock How to share a secret.
+\newblock {\em Commun. {ACM}}, 22(11):612--613, 1979.
+
+\bibitem{paper_stinson_strobl}
+Douglas~R. Stinson and Reto Strobl.
+\newblock Provably secure distributed schnorr signatures and a (t, n) threshold
+  scheme for implicit certificates.
+\newblock In Vijay Varadharajan and Yi~Mu, editors, {\em Information Security
+  and Privacy}, pages 417--434, Berlin, Heidelberg, 2001. Springer Berlin
+  Heidelberg.
+
+\end{thebibliography}
