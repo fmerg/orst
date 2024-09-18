@@ -41,10 +41,12 @@
 \usepackage{stackengine}
 
 % margins
-%\usepackage[left=3.95cm,right=3.95cm,bottom=3.95cm,top=3.95cm]{geometry}
-\usepackage[
-	a4paper,hscale=0.65,vscale=0.75,marginratio=1:1,marginparwidth=2.7cm
-]{geometry}
+%\usepackage[left=3.95cm,right=3.95cm,bottom=3.6cm,top=3.6cm]{geometry}
+\usepackage[left=3.9cm,right=3.9cm,bottom=3.65cm,top=3.65cm]{geometry}
+%\usepackage[left=3.8cm,right=3.8cm,bottom=3.7cm,top=3.7cm]{geometry}
+%\usepackage[
+%	a4paper,hscale=0.65,vscale=0.75,marginratio=1:1,marginparwidth=2.7cm
+%]{geometry}
 %\usepackage[a4paper,left=2.54cm,right=2.54cm,bottom=2.54cm,top=2.54cm]{geometry}
 %\usepackage[a4paper,left=3.8cm,right=3.8cm,bottom=3.8cm,top=3.8cm]{geometry}
 %\usepackage[a4paper,left=3.7cm,right=3.7cm,bottom=3.7cm,top=3.7cm]{geometry}
@@ -4241,46 +4243,6 @@ Local Forking Lemma
 and Corollary \ref{equality_intermediate}.
 \end{proof}
 
-\begin{rem}\label{rem_leaked_public_shares}
-(\textit{Leaked public shares})
-The adversary $\mathcal{A}$ of Game \ref{orst_attack_impersonation}
-is not given the public shares
-$y_i = g ^ {x_i},\hspace{2pt} 1 \le i \le n$.
-This is plausible because these are not advertised or used
-in the $\mathsf{ORST}$ protocol.
-On the other hand, a real-life attacker has most probably
-knowledge of these shares before mounting
-its actual impersonation attack.
-For example, a man-in-the middle who intercepts multiple
-identification sessions can infer the public shares
-from the captured proof packets in the form
-\eqref{orst_leaked_public};
-or, if the shareholders store the public shares
-locally for, say, mutual verification purposes,
-an attacker who compromises the device of a single shareholder
-can learn them immediately (if not erased).
-However, the proof of Theorem \ref{theorem_orst_security}
-remains intact under this stronger assumption.
-Supposing that the $y_i$'s must be given to $\mathcal{\bar{A}}$
-during the corruption phase of the simulated impersonation attack
-(cf. steps 3-5, Algorithm \ref{alg_attack_simulator}),
-these can be easily computed as
-\vspace{5pt}
-\begin{equation*}
-\hspace{42pt}
-y_k \leftarrow
-\sqrt[\leftroot{0}\uproot{10}\lambda_k^k]{\hspace{1.5pt}y\hspace{1.5pt}
-\Big(\hspace{1pt}\prod_{i \in J} y_i^{\lambda_i^k}\hspace{1pt}\Big)^{-1}},
-\hspace{4pt} k \in \{1, \dots, n\} \setminus J\hspace{1pt},
-\vspace{5pt}
-\end{equation*}
-where $y_i \equiv g ^ {x_i}$ for $i \in J$
-and $\{\lambda_i^k\}_i$
-are the Lagrange interpolation coefficients for
-$J \cup \{\hspace{0.5pt}k\hspace{0.5pt}\}$
-(cf. Remark \ref{shamir_reconstruction}).
-\end{rem}
-
 \begin{minipage}{0.97\textwidth}
 \begin{algorithm}[H]
     \centering
@@ -4467,6 +4429,46 @@ $J \cup \{\hspace{0.5pt}k\hspace{0.5pt}\}$
 \end{algorithm}
 \vspace{5pt}
 \end{minipage}
+
+\begin{rem}\label{rem_leaked_public_shares}
+(\textit{Leaked public shares})
+The adversary $\mathcal{A}$ of Game \ref{orst_attack_impersonation}
+is not given the public shares
+$y_i = g ^ {x_i},\hspace{2pt} 1 \le i \le n$.
+This is plausible because these are not advertised or used
+in the $\mathsf{ORST}$ protocol.
+On the other hand, a real-life attacker has most probably
+knowledge of these shares before mounting
+its actual impersonation attack.
+For example, a man-in-the middle who intercepts multiple
+identification sessions can infer the public shares
+from the captured proof packets in the form
+\eqref{orst_leaked_public};
+or, if the shareholders store the public shares
+locally for, say, mutual verification purposes,
+an attacker who compromises the device of a single shareholder
+can learn them immediately (if not erased).
+However, the proof of Theorem \ref{theorem_orst_security}
+remains intact under this stronger assumption.
+Supposing that the $y_i$'s must be given to $\mathcal{\bar{A}}$
+during the corruption phase of the simulated impersonation attack
+(cf. steps 3-5, Algorithm \ref{alg_attack_simulator}),
+these can be easily computed as
+\vspace{5pt}
+\begin{equation*}
+\hspace{42pt}
+y_k \leftarrow
+\sqrt[\leftroot{0}\uproot{10}\lambda_k^k]{\hspace{1.5pt}y\hspace{1.5pt}
+\Big(\hspace{1pt}\prod_{i \in J} y_i^{\lambda_i^k}\hspace{1pt}\Big)^{-1}},
+\hspace{4pt} k \in \{1, \dots, n\} \setminus J\hspace{1pt},
+\vspace{5pt}
+\end{equation*}
+where $y_i \equiv g ^ {x_i}$ for $i \in J$
+and $\{\lambda_i^k\}_i$
+are the Lagrange interpolation coefficients for
+$J \cup \{\hspace{0.5pt}k\hspace{0.5pt}\}$
+(cf. Remark \ref{shamir_reconstruction}).
+\end{rem}
 
 \appendix
 
