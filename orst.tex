@@ -1,7 +1,21 @@
 
-\documentclass[10pt, psamsfonts, reqno]{amsart}
+% \documentclass[10pt, psamsfonts, reqno]{amsart}
 % \documentclass{article}
 
+% IACR Transactions CLASS DOCUMENTATION
+% Written by Gaetan Leurent gaetan.leurent@inria.fr (2016-2024)
+%
+% To the extent possible under law, the author(s) have dedicated all
+% copyright and related and neighboring rights to this software to the
+% public domain worldwide. This software is distributed without any
+% warranty.
+%
+% You should have received a copy of the CC0 Public Domain Dedication
+% along with this software. If not, see
+% <http://creativecommons.org/publicdomain/zero/1.0/>.
+
+\documentclass{iacrtrans}
+\usepackage[utf8]{inputenc}
 %-------Packages---------
 \usepackage{amssymb,amsfonts}
 \usepackage[all,arc]{xy}
@@ -25,6 +39,30 @@
 \usepackage{amsmath, amsthm, amssymb, thmtools}
 \usepackage{scalerel}
 \usepackage{stackengine}
+% --------------------------
+
+\author{Foteinos Mergoupis-Anagnou}
+\institute{GRNET, Athens, Greece, \email{fmerg@grnet.gr}}
+%\title[\texttt{iacrtans} class documentation]{Non-Interactive
+%\\Schnorr Threshold Identification}
+\title{Non-Interactive
+\\Schnorr Threshold Identification}
+%\subtitle{\LaTeX{} Class Documentation (v. 0.94)}
+
+\begin{document}
+
+\maketitle
+
+% use optional argument because the \LaTeX command breaks the PDF keywords
+%\keywords[\publname, ToSC, TCHES, LaTeX]{\publname{} \and ToSC
+%  \and TCHES \and \LaTeX}
+
+%\begin{abstract}
+%  This document is a quick introduction to the \LaTeX{} class for the
+%  \publname{}.
+%\end{abstract}
+
+%\tableofcontents{}
 
 % algorithm style
 \makeatletter
@@ -84,7 +122,7 @@
 \newtheorem{notns}[thm]{Notations}
 \newtheorem{addm}[thm]{Addendum}
 \newtheorem{exer}[thm]{Exercise}
-\newtheorem{lemma}[thm]{Lemma}
+%\newtheorem{lemma}[thm]{Lemma}
 \newtheorem{Theorem}[thm]{Theorem}
 \newtheorem{attack_game}[thm]{Game}
 \newtheorem{protocol}[thm]{Protocol}
@@ -104,8 +142,8 @@
 % claim environment
 
 %\newenvironment{claim}[1]{\par\noindent\underline{Claim:}\space#1}{}
-\newenvironment{claim}[1]{\par\noindent{\textit{Claim}:}\space#1}{}
-\newenvironment{claimproof}[1]{\par\noindent{\textit{Proof}:}\space#1}{\hfill $\blacksquare$}
+%\newenvironment{claim}[1]{\par\noindent{\textit{Claim}:}\space#1}{}
+%\newenvironment{claimproof}[1]{\par\noindent{\textit{Proof}:}\space#1}{\hfill $\blacksquare$}
 
 % ----------------------------------------
 
@@ -122,17 +160,17 @@
 % \title{Threshold Non-Interactive Zero-Knowledge Protocols}
 % \title{Distributed Non-Interactive Schnorr Identification}
 % \title{Threshold Schnorr Identification}
-\title{Non-Interactive \\Schnorr Threshold Identification}
+%\title{Non-Interactive \\Schnorr Threshold Identification}
 % \title{Threshold Non-Interactive Schnorr Identification}
 % \title{Non-Interactive Threshold Schnorr Identification}
 % \title{Distributed Strictly Non-Interactive\\ Schnorr Identification}
 
-\author{Foteinos Mergoupis-Anagnou}
+%\author{Foteinos Mergoupis-Anagnou}
 %\author{Author Name}
 
 % \date{DEADLINES: Draft AUGUST 14 and Final version AUGUST 28, 2017}
 
-\begin{document}
+%\begin{document}
 
 \begin{abstract}
 Threshold zero-knowledge protocols
@@ -182,7 +220,7 @@ one-more discrete-logarithm hardness (OMDL) assumption.
 
 \maketitle
 
-% \tableofcontents
+%\tableofcontents
 
 \section{Introduction}
 
