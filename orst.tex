@@ -42,7 +42,7 @@
 
 % margins
 %\usepackage[left=3.95cm,right=3.95cm,bottom=3.6cm,top=3.6cm]{geometry}
-\usepackage[left=3.9cm,right=3.9cm,bottom=3.65cm,top=3.65cm]{geometry}
+\usepackage[left=3.80cm,right=3.80cm,bottom=3.70cm,top=3.70cm]{geometry}
 %\usepackage[left=3.8cm,right=3.8cm,bottom=3.7cm,top=3.7cm]{geometry}
 %\usepackage[
 %	a4paper,hscale=0.65,vscale=0.75,marginratio=1:1,marginparwidth=2.7cm
@@ -57,8 +57,9 @@
 
 % --------------------------
 
-\author{Foteinos Mergoupis-Anagnou}
-\institute{GRNET, Athens, Greece, \email{fmerg@grnet.gr}}
+\author{Author name}
+%\institute{GRNET, Athens, Greece, \email{fmerg@grnet.gr}}
+\institute{Athens, Greece, \email{fmerg@grnet.gr}}
 %\title[\texttt{iacrtans} class documentation]{Non-Interactive
 %\\Schnorr Threshold Identification}
 \title{Non-Interactive
@@ -134,7 +135,7 @@
 \newtheorem{protocol}[thm]{Protocol}
 \newtheorem{scheme}[thm]{Scheme}
 
-\theoremstyle{remark}
+\theoremstyle{definition}
 \newtheorem{rem}[thm]{Remark}
 %\newtheorem{rem}{Remark}[Theorem]
 \newtheorem{rems}[thm]{Remarks}
@@ -199,10 +200,10 @@ On the one side, the provers do not need to engage
 in any multi-party computation assisted by a trusted combiner;
 instead, they act independently and asynchronously,
 sending their proof packets to the verifier directly.
-On the other side, the verification operation
+On the other side, verification
 contains no reference to the public shares,
-meaning that the received packets are verified against
-the group public key alone and that the verifier does not need to
+meaning that proofs are verified against
+the group public key alone and the verifier does not need to
 trust and register the individual members' identities.
 The protocol can be cheaply adopted in
 dynamic and unregulated environments,
@@ -212,7 +213,7 @@ with existing verifiers by means of pure software extension.
 No trusted setup is required beyond
 the minimum assumption that the key has been
 shared according to Shamir's secret sharing (or
-equivalent distributed key generation (DKG) protocol)
+equivalent DKG scheme)
 and that the group public key has been advertised correctly;
 in particular, the protocol is intended to be
 secure against impersonation attacks
@@ -300,7 +301,7 @@ public shares, i.e., decryption is not released
 unless all proofs are individually found to be valid.
 Since every proof
 includes a Schnorr proof for the respective shareholder's key,
-one could eliminate the encryption specific details
+one can eliminate the encryption specific details
 in order to derive a pure identification protocol.
 
 A protocol of this kind is non-interactive and requires
@@ -349,13 +350,13 @@ eliminating infrastructure on one side
 requires its existence and maintenance on the other.
 We propose an infrastucture-free
 Schnorr-based threshold identification scheme
-which achieves non-interactiveness \textit{and} non-reliance;
+that achieves non-interactiveness \textit{and} non-reliance;
 as such, it is suitable for flexible identification
 settings and can be cheaply adopted
 in the following sense: (a) existing verifiers
 need only extend their software
 in order to support the distributed case,
-without adding new infrastructure
+without adding infrastructure
 for trusting and registering
 public shares (b) existing keys
 can be shared at the verifiers' complete negligence.
@@ -401,12 +402,12 @@ under the OMDL hardness assumption.
 In Section \ref{section_security_proof} we present
 the formal security proof in the random oracle model,
 employing the above mentioned key-recovery attack.
-The formalism and main facts regarding Shamir's sharing
+The main facts regarding Shamir's sharing
 are presented in Appendix \ref{section_shamir}
 and a quick refresher on the
 Schnorr protocol can be found below.
 
-\subsection{Schnorr protocol}\label{section_schnorr}
+\subsection{Schnorr identification}\label{section_schnorr}
 
 \noindent
 Fix a cyclic group $\mathbb{G} = \langle g \rangle$ of order $q$.
@@ -432,7 +433,7 @@ on the plausibility of this assumption over
 carefully chosen groups, a trend that will
 only be challenged with the advent of practical quantum computing.
 
-The \textit{Schnorr identification protocol}
+The \textit{Schnorr protocol}
 is a non-interactive zero-knowledge (NIZK) scheme,
 allowing the key holder of $y = g ^ x$
 to prove knowledge of $x$
@@ -501,9 +502,8 @@ The protocol becomes meaningful
 only in the font of $\mathsf{DL}$ hardness,
 which in turn guarantees
 that the protocol is secure.\footnote{The
-most far-reaching result of this kind is that
-Schnorr identification is secure
-against active and concurrent impersonation attacks
+most far-reaching result of this kind is
+security against active and concurrent impersonation attacks
 under ``one-more" discrecte logarithm (OMDL) hardness;
 cf. Theorem 2, \cite{paper_bellare_palacio}.}
 
@@ -641,10 +641,10 @@ y^* = (y_t^*)^{\lambda_t}\prod_{i=1}^{t-1}y_i^{\lambda_i}
 \vspace{5pt}
 \end{equation*}
 in place of $y$, where $\{\lambda_i\}_{i}$
-are the Lagrange interpolation coefficients for $\{1, \dots, t\}$.
+are the interpolation coefficients for $\{1, \dots, t\}$.
 By reverse-engineering Shamir reconstruction,
 the proxy tunes $y_i^*,\hspace{2pt} t < i \le n,$
-so that $y_1, \dots, y_{t-1}, y_t^*, \dots, y_n^*$
+so that the collection $y_1, \dots, y_{t-1}, y_t^*, \dots, y_n^*$
 becomes a $(n, t)$-sharing of $y^*$
 and broadcasts it to the verifiers;
 in the sequel, it can jump in and
@@ -840,11 +840,11 @@ are the interpolation coefficients
 for $Q$, holding the respective $r_i$'s in private.
 $r$ need not be locally reconstructible
 but involved parties should be able to
-verifiably infer the distributed commitment
+infer the distributed commitment
 $u = g^r$ at the end of the process.
 Next, the involved parties generate Schnorr proofs
 for their keys using the respective commitment share
-and uniform challenge $H(u)$, i.e.,
+and challenge $H(u)$, i.e.,
 \vspace{5pt}
 \begin{equation*}
 (u_i, s_i),
@@ -1050,7 +1050,7 @@ be further junct into a single operation
 in order for the extraction of $x_j$
 to be possible by rewinding.
 
-\section{One-round Schnorr Threshold Identification}\label{section_orst}
+\section{One-Round Schnorr Threshold Identification}\label{section_orst}
 
 \noindent
 We fix a cyclic group $\mathbb{G} = \langle g \rangle$ of order $q$
@@ -1205,13 +1205,10 @@ only if at least $t$ shareholders are involved.
 
 \begin{rem}\label{orst_interactive}
 (\textit{Interactive variance})
-We may regard $H$ as approximating
+We may regard $H$ as
 a random oracle insofar as predicting any of its output bits
-remains infeasible; in the limit,
-the provers submit their commitments
-to an oracle that is accessible to the verifier.
-Or, equivalently, they send them
-directly to the verifier, who lazily samples challenges
+is infeasible. Equivalently, the provers send their commitments
+to the verifier, who lazily samples challenges
 by maintaining a lookup table $\mathsf{Map}$ per session.
 For every $i \in Q$, the $i$-th shareholder
 samples $r_i \leftarrow_\$ \mathbb{Z}_q$
@@ -1409,8 +1406,8 @@ with respect to every fixed sharing of $x = \log y$.
 In the non-distributed case $t=1$, the subspace
 $\Sigma_y \big[\{u_i\}_{i \in Q}\big]$
 is a singleton due to the ``unique responses" property
-of the ordinary Schnorr protocol.
-Specifically, for every commitment $u$
+of the Schnorr protocol.
+Specifically, for every $u \in \mathbb{G}$
 there exists a unique response $s$
 such that the proof $(u, s)$ is valid against $y=g^x$,
 namely $s = r + H(u)\hspace{1pt}x$ with $r \equiv \log u$.
@@ -1579,7 +1576,7 @@ we can define
 \vspace{5pt}
 \begin{equation*}
 x_i = \frac{s_i - r_i}{c_i},
-\ \ i \in Q\hspace{1pt}
+\ \ i \in Q\hspace{1pt},
 \vspace{5pt}
 \end{equation*}
 where $r_i \equiv \log u_i$.
@@ -1596,9 +1593,7 @@ x = \sum_{i \in Q} \lambda_i x_i\hspace{1pt}.
 Since $s_i = r_i + c_i\hspace{1pt}x_i,\forall i \in Q$,
 the proof is canonical with respect to this sharing
 and thus valid against $y = g ^ x$.
-The claim follows because a proof can be valid
-against a unique public key
-(cf. Prop. \ref{orst_uniqueness_public_key}).
+The claim follows from Proposition \ref{orst_uniqueness_public_key}.
 \end{proof}
 
 \begin{rem}\label{orst_validity_degrees_of_freedom}
@@ -1800,7 +1795,7 @@ Consider a canonical proof $\{(u_i, s_i)\}_{i \in Q}$
 with $|Q| \ge t$ and let $\{\mu_i\}_{i \in Q}$ be its weights.
 Pick $j \in Q$ and arbitrary scalars
 $\delta_i,\hspace{2pt} i \in Q \setminus \{j\},$
-such that at least one of them is non-zero.
+such that at least one is non-zero.
 If we define
 \vspace{5pt}
 \begin{equation*}
@@ -1969,7 +1964,7 @@ $s_i^* = s_i + \delta_i$ remains valid bacause
 This essentially exploits the structure described in
 Remark \ref{orst_valid_above_rem}.
 That is, in case of interception,
-the attacker has a least $t-1$ degrees of freedom
+the attacker has $t-1$ degrees of freedom
 in fabricating a valid proof based on the same commitments.
 This evidently generalizes the replay attack of the non-distributed
 case $t=1$, where the intercepted proof can only be replayed as is.
@@ -2071,11 +2066,11 @@ and $\{\mu_i\}_{i \in Q}$ are the weights
 induced by the challenges $\{c_i\}_{i \in Q}$.
 (cf. Corollary \ref{orst_validity_above}).
 They next engage in a second session,
-where the $j$-th shareholder reuses the commitment $u_j$.
+where the $j$-th shareholder reuses $u_j$.
 After receiving $u_j$ on the server's side,
 $\mathcal{A}^*$ responds with a challenge $c_j^* \neq c_j$
 and tunes the rest shareholders to
-reuse the commitments $u_i,\hspace{2pt} i \in J$
+reuse the commitments $u_i,\hspace{2pt} i \in J,$
 from the previous session. To each of them,
 the server responds with the same challenge
 $c_i^* = c_i$
@@ -2157,9 +2152,9 @@ $\mathsf{ORST}$ protocol.
 Formulations are given in terms of attack games within the
 asymptotic paradigm and negligibility
 is meant with respect to the bitlength
-of the underlying group order.
+of the group order.
 In Section \ref{section_threat_model}, we outline
-security against impersonation attacks in the abstract
+security against impersonation attacks
 and correlate it with a pragmatic security requirement,
 namely a distributed knowledge property.
 In Section \ref{section_extractability_and_omdl},
@@ -2316,8 +2311,7 @@ $\mathcal{A}$ wins if $\sigma$ is valid against $y$.
 \noindent
 Note that successful impersonation is equivalent
 to condition \eqref{orst_verification_1} for $\sigma$.
-
-$\mathsf{ORST}$ security against impersonation attacks should mean
+Security against impersonation attacks should mean
 that every polynomial-time adversary wins the above game
 with negligible advantage.
 The pragmatic requirement behind is that,
@@ -2476,13 +2470,13 @@ Extraction is not possible in the present context.
 Since there exist circumstances where
 extraction cannot complete without further assumptions,
 security is (most probably)
-unprovable without further assumptions as well.
+not provable without further assumptions as well.
 In particular,
 $\mathsf{ORST}$ security
 against impersonation attacks is (most probably)
 \textit{not} reducible to $\mathsf{DL}$ hardness,
 at least not until a different extraction formula is discovered.
-Nevertheless, $\mathcal{A}^*$ would indeed be able to extract $x_j$
+Nevertheless, $\mathcal{A}^*$ would be able to extract $x_j$
 if it could somehow see the logarithms
 of the intercepted commitments, e.g.,
 if it controlled the respective shareholders' devices
@@ -2491,7 +2485,7 @@ or other security sensitive module.
 We can codify such scenarios under the assumption
 that $\mathcal{A}^*$ is allowed to issue at most
 $t-1$ queries to a hypothetical $\mathsf{DL}$ oracle;
-extraction of $x_j$ by means of \eqref{orst_key_recovery}
+extraction of $x_j$
 would then become possible,
 suggesting that security against impersonation attacks
 might as well be reducible to the
@@ -2585,7 +2579,6 @@ $\{(u_i, s_i)\}_{i \in Q}$ verifies against $y$.
 $\mathsf{ORST}$ security against impersonation attacks
 should mean that every polynomial-time adversary wins this game
 with negligible advantage.
-
 Observe that no restrictions are yet imposed on $|Q|$,
 allowing the adversary to fabricate
 a valid proof with less than $t$ components.
@@ -2598,11 +2591,7 @@ fabricating such proofs can be ruled out as infeasible.
 Let $\mathcal{A}$ be a polynomial-time adversary
 that wins with $Q \subset J$ (i.e., $|Q| < t$).
 Write $J = \{\hspace{0.5pt}i_1, \dots i_{t-1}\hspace{0.5pt}\}$
-with
-\begin{equation*}
-i_1 < \dots < i_{t-1},
-\end{equation*}
-so that
+with $i_1 < \dots < i_{t-1}$, so that
 $Q = \{\hspace{0.5pt}i_1, \dots, i_m\}$
 for some $m \in \{1, \dots, t-1\}$.
 We construct a $(t-1)$-$\mathsf{OMDL}$ adversary
@@ -2663,13 +2652,14 @@ hardness assumption; see also Remarks
 \subsection{Security against impersonation attacks}\label{section_security_imp}
 
 \noindent
-We conclude with the following working model
+We conclude with the following model
 for impersonation attacks against
-$
-\mathsf{ORST}
-	_{\hspace{1pt}\mathbb{G},\hspace{0.5pt} n,\hspace{0.5pt} t},
-\hspace{2pt} 1 \le t \le n < q
-$.
+$\mathsf{ORST}$.
+%$
+%\mathsf{ORST}
+%	_{\hspace{1pt}\mathbb{G},\hspace{0.5pt} n,\hspace{0.5pt} t},
+%\hspace{2pt} 1 \le t \le n < q
+%$.
 
 \begin{attack_game}\label{orst_attack_impersonation}
 \vspace{3pt}
@@ -2751,7 +2741,7 @@ By the security property of
 Shamir's secret sharing (cf. Remark \ref{shamir_security}),
 the parameters $j$ and $J$ (and consequently $Q$)
 may be regarded as fixed for $\mathcal{A}$.
-In particular, we can regard $\mathcal{A}$ as
+In particular, $\mathcal{A}$ is
 a pair of non-interactive algorithms
 $(\mathcal{A}_0, \mathcal{\bar{A}})$
 of the form
@@ -2823,7 +2813,7 @@ random coins and let $p_i$ denote the probability that
 $\mathcal{A}$ runs $\mathcal{A}_i$
 (which is itself an adversary for $\mathsf{G}$);
 we then have
-\vspace{5pt}
+\vspace{0pt}
 \begin{equation*}
 	\mathsf{Adv}
 		^{\mathsf{G}}
@@ -2849,8 +2839,8 @@ we then have
 			\hspace{1pt}
 			\mathcal{A}_i
 			\hspace{1pt}
-		]\hspace{1pt}
-\vspace{5pt}
+		]\hspace{1pt}.
+\vspace{0pt}
 \end{equation*}
 Since $p_1 + \dots + p_m = 1$, we conclude
 $
@@ -2992,7 +2982,7 @@ The rationale behind the attack model
 is found in Section \ref{section_threat_model}.
 
 Our reduction generalizes the rewinding argument
-of the non-distributed case in the threshold setting
+of the non-distributed case
 in order to extract the unknown share $x_j$.
 This is a non-trivial generalization.
 As indicated by the key-recovery attack
@@ -3003,7 +2993,7 @@ with fixed commitments
 (cf. Remark \ref{orst_validity_degrees_of_freedom});
 it becomes useful only if the logarithms
 of the intercepted commitments
-are known to the reduction algorithm,
+are known,
 which is the reason for reducing to
 $(t-1)$-$\textsf{OMDL}$ hardness.
 Moreover, extraction presupposes the fixture of
@@ -3026,7 +3016,29 @@ Given $J \subset \{1, \dots, n\}$,
 we can represent any collection
 $\alpha_1, \dots, \alpha_m$ with $|J|=m$
 as $\{\beta_i\}_{i \in J}$ using the
-$\mathsf{Zip}$ operator below.
+$\mathsf{Zip}$ operator, Algorithm \ref{alg_zip}.
+Clearly, $\mathsf{Zip}$ preserves the random sampling.
+
+\begin{lemma}\label{zip_lemma}
+Given $J \subset \{1, \dots, n\}$, $|J| = m \ge 1$,
+the probability distribution
+\vspace{5pt}
+\begin{equation*}
+\{\hspace{1pt}
+\mathsf{Zip}\hspace{1pt}(
+\alpha_1, \dots, \alpha_m;\hspace{1pt} J\hspace{1pt}):
+\hspace{1pt}\alpha_i \leftarrow_\$ A,
+\ i = 1, \dots, m
+\hspace{1pt}\}
+\vspace{5pt}
+\end{equation*}
+is identical to the distribution
+$\{\{\beta_i\}_{i \in J}: \beta_i \leftarrow_\$ A,\ i \in J\}$.
+\end{lemma}
+
+\begin{proof}
+Follows directly from the definition of $\mathsf{Zip}$.
+\end{proof}
 
 \begin{minipage}[t]{0.46\textwidth}
 \vspace{0pt}
@@ -3071,32 +3083,7 @@ $\mathsf{Zip}$ operator below.
 \vspace{0pt}
 \end{minipage}
 
-\noindent
-It should be clear that $\mathsf{Zip}$
-preserves the uniform sampling.
-
-\begin{lemma}\label{zip_lemma}
-Given $J \subset \{1, \dots, n\}$, $|J| = m \ge 1$,
-the probability distribution
-\vspace{5pt}
-\begin{equation*}
-\{\hspace{1pt}
-\mathsf{Zip}\hspace{1pt}(
-\alpha_1, \dots, \alpha_m;\hspace{1pt} J\hspace{1pt}):
-\hspace{1pt}\alpha_i \leftarrow_\$ A,
-\ i = 1, \dots, m
-\hspace{1pt}\}
-\vspace{5pt}
-\end{equation*}
-is identical to the distribution
-$\{\{\beta_i\}_{i \in J}: \beta_i \leftarrow_\$ A,\ i \in J\}$.
-\end{lemma}
-
-\begin{proof}
-Follows directly from the definition of $\mathsf{Zip}$.
-\end{proof}
-
-\subsection{Shamir sharing simulation}\label{section_shamir_sharing_simulation}
+\subsection{Shamir's sharing simulation}\label{section_shamir_sharing_simulation}
 
 Let $y^* \in \mathbb{G}$ and
 $x_1^*, \dots, x_{t-1}^* \in \mathbb{Z}_q$, $t \le n$.
@@ -3117,51 +3104,6 @@ we define
 \vspace{0pt}
 \end{equation}
 to be Algorithm \ref{alg_shamir_simulation}.
-
-%\begin{figure}[H]
-\begin{minipage}{0.96\textwidth}
-\begin{algorithm}[H]
-    \centering
-    \caption{$\mathcal{D}\hspace{1pt}(
-	\hspace{1pt}y^*,
-	x_1^*, \dots, x_{t-1}^*
-	\hspace{1pt};
-	j\hspace{1pt},
-	J
-)$}\label{alg_shamir_simulation}
-    \begin{algorithmic}[1]
-    	\vspace{4pt}
-    	\State
-    		Set $y_j \leftarrow y^*$\vspace{6pt}
-    	\State
-    		$\{x_i\}_{i \in J} \leftarrow
-    		\mathsf{Zip}\hspace{0.75pt}
-    		(\hspace{0.5pt}x_1^*, \dots, x_{t-1}^*)$\vspace{6pt}
-		\State
-    		Set $y_i \leftarrow g ^ {x_i},\ i \in J$\vspace{6pt}
-    	\State
-    		$Q \leftarrow J \cup \{\hspace{1pt}j\hspace{1pt}\}$\vspace{6pt}
-    	\State
-    		$y \leftarrow \prod_{i \in Q} y_i ^ {\lambda_i}$\vspace{6pt}
-    	%\State
-    	%	Compute
-    	%	\begin{equation}\label{sharing_simulation_combined}
-		%		y \leftarrow \prod_{i \in Q} y_i ^ {\lambda_i}
-		%		\vspace{5pt}
-		%	\end{equation}
-    	%	\vspace{-5pt}
-		\State
-			\textbf{return $\{x_i\}_{i \in J}, y$}\vspace{5pt}
-    \end{algorithmic}
-\end{algorithm}
-\vspace{0pt}
-\end{minipage}
-%\vspace{-12pt}
-%\caption{Shamir sharing simulation}
-%\label{fig_shamir_sharing_simulation}
-%\end{figure}
-
-\noindent
 Its properties are summarlized as follows.
 
 \begin{lem}\label{shamir_sharing_simulation_lemma}
@@ -3221,9 +3163,40 @@ subject to the constraint \eqref{shamir_sharing_constraint},
 with the outputs of $\mathcal{D}$
 mapping to those of $D$ bijectively.
 Equality of distributions follows
-from the security of the Shamir's sharing
+from the security property of the Shamir's secret sharing
 (cf. Remark \ref{shamir_security}).
 \end{proof}
+
+\begin{minipage}{0.96\textwidth}
+\begin{algorithm}[H]
+    \centering
+    \caption{$\mathcal{D}\hspace{1pt}(
+	\hspace{1pt}y^*,
+	x_1^*, \dots, x_{t-1}^*
+	\hspace{1pt};
+	j\hspace{1pt},
+	J
+)$}\label{alg_shamir_simulation}
+    \begin{algorithmic}[1]
+    	\vspace{4pt}
+    	\State
+    		Set $y_j \leftarrow y^*$\vspace{6pt}
+    	\State
+    		$\{x_i\}_{i \in J} \leftarrow
+    		\mathsf{Zip}\hspace{0.75pt}
+    		(\hspace{0.5pt}x_1^*, \dots, x_{t-1}^*)$\vspace{6pt}
+		\State
+    		Set $y_i \leftarrow g ^ {x_i},\ i \in J$\vspace{6pt}
+    	\State
+    		$Q \leftarrow J \cup \{\hspace{1pt}j\hspace{1pt}\}$\vspace{6pt}
+    	\State
+    		$y \leftarrow \prod_{i \in Q} y_i ^ {\lambda_i}$\vspace{6pt}
+		\State
+			\textbf{return $\{x_i\}_{i \in J}, y$}\vspace{5pt}
+    \end{algorithmic}
+\end{algorithm}
+\vspace{0pt}
+\end{minipage}
 
 \subsection{Hash oracles}\label{section_hash_oracles}
 
@@ -3443,147 +3416,6 @@ is included with access to the same hash oracle for
 verifying the output of the embedded adversary.
 The exact procedure is shown in Algorithm \ref{alg_attack_simulator}.
 
-\begin{minipage}{0.94\textwidth}
-\begin{center}
-\begin{algorithm}[H]
-    \centering
-    \caption{$\mathcal{S}
-		\hspace{.5pt}
-		[
-			\hspace{0.5pt}
-			\mathcal{A}
-			\hspace{1pt}
-		]
-		\hspace{1pt}
-		(
-			\hspace{1pt}
-			y ^*,
-			\hspace{1pt}
-			x_1^*, \dots, x_{t-1}^*,
-			\hspace{1pt}
-			w_1, \dots, w_{t-1};
-			\hspace{1pt}
-			h_1, \dots, h_m
-		)$}\label{alg_attack_simulator}
-    \begin{algorithmic}[1]
-    	\vspace{4pt}
-    	\State
-    		$h \leftarrow
-    		[\hspace{1pt}h_1, \dots, h_m\hspace{1pt}],
-    		\ \nu \leftarrow 1,
-    		\ \mathsf{Map}_1 = \varnothing,
-    		\ \mathsf{Map}_2 = \varnothing$
-    		\hspace{14pt}// \textit{Setup
-    		$\mathcal{O}^{\mathsf{hash}}$}\vspace{5pt}
-    	\State
-    		$(\hspace{1pt}j, J\hspace{1pt}) \leftarrow \mathcal{A}_0
-    		\hspace{0.5pt}(\hspace{1pt}\cdot\hspace{1pt})$
-    		\hspace{26pt}// \textit{Attack statement}\vspace{5pt}
-    	\State
-    		$(\hspace{1pt}\{x_i\}_{i \in J},\hspace{1pt} y\hspace{1pt})
-			\leftarrow
-			\mathcal{D}\hspace{1pt}(
-			\hspace{1pt}y^*,
-			x_1^*, \dots, x_{t-1}^*
-			\hspace{1pt};
-			j\hspace{1pt},
-			J
-			\hspace{1pt}
-			)$
-    		\hspace{26pt}// \textit{Corruption}\vspace{6pt}
-    	\State
-    		$\{u_i\}_{i \in J} \leftarrow
-    		\mathsf{Zip}\hspace{0.75pt}
-    		(\hspace{0.5pt}w_1, \dots, w_{t-1})$
-    		\hspace{70pt}// \textit{Interception}\vspace{6pt}
-		\State
-			$\{(u_i, s_i)\}_{i \in Q} \leftarrow
-			\mathcal{\bar{A}}\hspace{1pt}(\hspace{1pt}
-			y, \{x_i\}_{i \in J}, \{u_i\}_{i \in J}\hspace{1pt})$
-			\hspace{22pt}// \textit{Impersonation}\vspace{7pt}
-		\State
-			$res
-			\hspace{2pt}
-			\leftarrow
-			\hspace{2pt}
-			\mathcal{V}\hspace{1pt}(\hspace{1pt}y,
-			\{(u_i, s_i)\}_{i \in Q})$\vspace{4pt}
-		\For{$i \in Q$}\vspace{2pt}
-			\State
-				$c_i \leftarrow \mathsf{Map}_1
-				[\hspace{1pt}u_i\hspace{1pt}]$\vspace{2pt}
-		\EndFor
-		\State
-			$\sigma \leftarrow \{(u_i, c_i, s_i)\}_{i \in Q}$\vspace{5pt}
-		\State
-			$k \leftarrow \mathsf{Map}_2[\hspace{1pt}
-			u_j\hspace{1pt}]$\vspace{4pt}
-		\If{$res = \mathsf{true}$}\vspace{3pt}
-			\State
-				\textbf{return $(
-					\hspace{0.5pt}
-					k,
-					\hspace{0.5pt}
-					(
-						\hspace{0.5pt}
-						j,
-						\hspace{0.5pt}
-						\sigma
-					)
-					\hspace{0.5pt}
-				)$}
-		\EndIf
-		\State
-			\textbf{return $(
-				\hspace{0.5pt}
-				0,
-				\hspace{0.5pt}
-				(
-					\hspace{0.5pt}
-					j,
-					\hspace{0.5pt}
-					\sigma
-				)
-				\hspace{0.5pt}
-			)$}\vspace{3pt}
-    \end{algorithmic}
-\end{algorithm}
-\end{center}
-\vspace{5pt}
-\end{minipage}
-
-\noindent
-$\mathcal{O}^{\mathsf{hash}}$
-is first initialized with tape
-$[\hspace{0.5pt}h_1, \dots, h_m\hspace{0.5pt}]$
-and its lookup tables set to empty.
-After $\mathcal{A}$ makes its attack statement,
-the virtual challenger accordingly simulates the unique sharing
-$(x_1, \dots, x_n;\hspace{2pt} y) \leftarrow D(x),
-\hspace{2pt} x \leftarrow \mathbb{Z}_q$
-subject to the constraint \eqref{shamir_sharing_constraint};
-in particular, $x_j = \log y^*$.
-It then generates commitments
-$\{u_i\}_{i \in J}$ and feeds them
-along with $y$ and $\{x_i\}_{i \in J}$
-to $\mathcal{A}$, who proceeds
-to impersonation
-and generates a proof of the expected form;
-in particular, $Q = J \cup \{\hspace{0.5pt}j\hspace{0.5pt}\}$.
-Note that all oracle queries are implicitly issued
-at step 5, including the challenges
-$c_i \leftarrow \mathcal{O}^{\mathsf{hash}}(u_i),\hspace{2pt} i \in Q$,
-which are collected and attached to the fabricated
-proof for later usage (steps 7-9).
-We also locate the unique $k \in \{1, \dots, m\}$
-for which $c_j = h\hspace{1pt}[\hspace{1pt}k\hspace{1pt}]$
-(step 10), indicating that the fabricated commitment
-was submitted at the $k$-th distinct query.
-If $\mathcal{A}$ succeeds in its impersonation attempt,
-the simulation returns $(k, (j, \sigma))$; otherwise, it
-returns $(\hspace{1pt}0, (j, \sigma))$
-to indicate failure.
-
 \begin{figure}[H]
  \begin{overpic}[scale=0.8]{reduction.pdf}
   \put (89,62.50) {$\mathcal{S}\hspace{1pt}[\hspace{1pt}\mathcal{A}\hspace{1pt}]$}
@@ -3632,6 +3464,38 @@ simulator}
 \label{fig_attack_simulator}
 \end{figure}
 
+\noindent
+$\mathcal{O}^{\mathsf{hash}}$
+is first initialized with tape
+$[\hspace{0.5pt}h_1, \dots, h_m\hspace{0.5pt}]$
+and its lookup tables set to empty.
+After $\mathcal{A}$ makes its attack statement,
+the virtual challenger accordingly simulates the unique sharing
+$(x_1, \dots, x_n;\hspace{2pt} y) \leftarrow D(x),
+\hspace{2pt} x \leftarrow \mathbb{Z}_q$
+subject to the constraint \eqref{shamir_sharing_constraint};
+in particular, $x_j = \log y^*$.
+It then generates commitments
+$\{u_i\}_{i \in J}$ and feeds them
+along with $y$ and $\{x_i\}_{i \in J}$
+to $\mathcal{A}$, who proceeds
+to impersonation
+and generates a proof of the expected form;
+in particular, $Q = J \cup \{\hspace{0.5pt}j\hspace{0.5pt}\}$.
+Note that all oracle queries are implicitly issued
+at step 5, including the challenges
+$c_i \leftarrow \mathcal{O}^{\mathsf{hash}}(u_i),\hspace{2pt} i \in Q$,
+which are collected and attached to the fabricated
+proof for later usage (steps 7-9).
+We also locate the unique $k \in \{1, \dots, m\}$
+for which $c_j = h\hspace{1pt}[\hspace{1pt}k\hspace{1pt}]$
+(step 10), indicating that the fabricated commitment
+was submitted at the $k$-th distinct query.
+If $\mathcal{A}$ succeeds in its impersonation attempt,
+the simulation returns $(k, (j, \sigma))$; otherwise, it
+returns $(\hspace{1pt}0, (j, \sigma))$
+to indicate failure.
+
 \begin{prop}\label{orst_simulated_impersonation_attack_prop}
 \textup{($\mathsf{ORST}
 	_{\hspace{1pt}\mathbb{G}, n, t}
@@ -3655,7 +3519,7 @@ are indistinguishable from the adversary's viewpoint.
 More accurately, the probability distribution of $\mathcal{A}$'s view
 in the real attack game
 is identical to the distribution of $\mathcal{\bar{A}}$'s
-input in
+input in the invocation
 \vspace{6pt}
 \begin{equation}\label{orst_attack_simulated}
 \begin{split}
@@ -3770,6 +3634,115 @@ Direct consequence of Proposition
 \ref{orst_simulated_impersonation_attack_prop}.
 \end{proof}
 
+\begin{minipage}{0.94\textwidth}
+\begin{center}
+\begin{algorithm}[H]
+    \centering
+    \caption{$\mathcal{S}
+		\hspace{.5pt}
+		[
+			\hspace{0.5pt}
+			\mathcal{A}
+			\hspace{1pt}
+		]
+		\hspace{1pt}
+		(
+			\hspace{1pt}
+			y ^*,
+			\hspace{1pt}
+			x_1^*, \dots, x_{t-1}^*,
+			\hspace{1pt}
+			w_1, \dots, w_{t-1};
+			\hspace{1pt}
+			h_1, \dots, h_m
+		)$}\label{alg_attack_simulator}
+    \begin{algorithmic}[1]
+    	\vspace{4pt}
+    	\State
+    		$h \leftarrow
+    		[\hspace{1pt}h_1, \dots, h_m\hspace{1pt}],
+    		\ \nu \leftarrow 1,
+    		\ \mathsf{Map}_1 = \varnothing,
+    		\ \mathsf{Map}_2 = \varnothing$
+    		\hspace{14pt}// \textit{Setup
+    		$\mathcal{O}^{\mathsf{hash}}$}\vspace{5pt}
+    	\State
+    		$(\hspace{1pt}j, J\hspace{1pt}) \leftarrow \mathcal{A}_0
+    		\hspace{0.5pt}(\hspace{1pt}\cdot\hspace{1pt})$
+    		\hspace{26pt}// \textit{Attack statement}\vspace{5pt}
+    	\State
+    		$(\hspace{1pt}\{x_i\}_{i \in J},\hspace{1pt} y\hspace{1pt})
+			\leftarrow
+			\mathcal{D}\hspace{1pt}(
+			\hspace{1pt}y^*,
+			x_1^*, \dots, x_{t-1}^*
+			\hspace{1pt};
+			j\hspace{1pt},
+			J
+			\hspace{1pt}
+			)$
+    		\hspace{26pt}// \textit{Corruption}\vspace{6pt}
+    	\State
+    		$\{u_i\}_{i \in J} \leftarrow
+    		\mathsf{Zip}\hspace{0.75pt}
+    		(\hspace{0.5pt}w_1, \dots, w_{t-1})$
+    		\hspace{70pt}// \textit{Interception}\vspace{6pt}
+		\State
+			$\{(u_i, s_i)\}_{i \in Q} \leftarrow
+			\mathcal{\bar{A}}\hspace{1pt}(\hspace{1pt}
+			y, \{x_i\}_{i \in J}, \{u_i\}_{i \in J}\hspace{1pt})$
+			\hspace{22pt}// \textit{Impersonation}\vspace{7pt}
+		\State
+			$res
+			\hspace{2pt}
+			\leftarrow
+			\hspace{2pt}
+			\mathcal{V}\hspace{1pt}(\hspace{1pt}y,
+			\{(u_i, s_i)\}_{i \in Q})$\vspace{4pt}
+		\For{$i \in Q$}\vspace{2pt}
+			\State
+				$c_i \leftarrow \mathsf{Map}_1
+				[\hspace{1pt}u_i\hspace{1pt}]$\vspace{2pt}
+		\EndFor
+		\State
+			$\sigma \leftarrow \{(u_i, c_i, s_i)\}_{i \in Q}$\vspace{5pt}
+		\State
+			$k \leftarrow \mathsf{Map}_2[\hspace{1pt}
+			u_j\hspace{1pt}]$\vspace{4pt}
+		\If{$res = \mathsf{true}$}\vspace{3pt}
+			\State
+				\textbf{return $(
+					\hspace{0.5pt}
+					k,
+					\hspace{0.5pt}
+					(
+						\hspace{0.5pt}
+						j,
+						\hspace{0.5pt}
+						\sigma
+					)
+					\hspace{0.5pt}
+				)$}
+		\EndIf
+		\State
+			\textbf{return $(
+				\hspace{0.5pt}
+				0,
+				\hspace{0.5pt}
+				(
+					\hspace{0.5pt}
+					j,
+					\hspace{0.5pt}
+					\sigma
+				)
+				\hspace{0.5pt}
+			)$}\vspace{3pt}
+    \end{algorithmic}
+\end{algorithm}
+\end{center}
+\vspace{5pt}
+\end{minipage}
+
 \subsection{Local fork and extraction}\label{section_extractability}
 
 In the non-distributed case $t=1$,
@@ -3796,13 +3769,12 @@ returned by the embedded oracle in respective order,
 which allows to rerun the simulator with the same hashes
 except for $c_j = h_k$.
 In this case, the Local Forking Lemma
-(cf. Lemma \ref{local_forking_lemma})
+(cf. Appendix \ref{section_local_forking_lemma})
 becomes applicable in place of the general forking lemma
 (cf. \cite{paper_bellare_musig}
 or reset lemma, \cite{paper_bellare_palacio}),
 provided that $\mathcal{A}$
 is deterministic.
-
 Recall that the local fork of
 $\mathcal{S}\hspace{0.5pt}[\hspace{0.5pt}\mathcal{A}\hspace{1pt}]$
 is an algorithm of the form
@@ -3922,12 +3894,8 @@ be outputs of a non-aborting execution
 \vspace{5pt}
 \end{equation*}
 Then $\sigma,\hspace{1pt}\sigma^*$ are of the form
-\vspace{5pt}
-\begin{equation}\label{orst_forked_proofs}
-\{(u_i, c_i, s_i)\}_{i \in Q},\ \{(u_i, c_i^*, s_i^*)\}_{i \in Q}
-\vspace{5pt}
-\end{equation}
-respectively and subject to the constraint
+$\{(u_i, c_i, s_i)\}_{i \in Q}, \{(u_i, c_i^*, s_i^*)\}_{i \in Q}$
+and subject to the constraint
 \vspace{5pt}
 \begin{equation}\label{orst_forked_challenges}
 c_j \neq c_j^*
@@ -3956,7 +3924,7 @@ x_j
 \Big)
 \vspace{5pt}
 \end{equation}
-for $x_j \equiv \log y^*$ holds true, where
+holds true for $x_j \equiv \log y^*$, where
 $r_i \equiv \log u_i$
 and 
 $\{\mu_i\}_{i \in Q}$, $\{\mu_i^*\}_{i \in Q}$
@@ -3978,24 +3946,20 @@ The constraint regarding challenges follows because
 $c_j^* = h_k^* \neq h_k = c_j$
 and the rest are drawn from $\{h_\nu\}_{\nu \neq k}$.
 We proceed to the extraction formula.
-Since $c_i = c^*_i$ for $i \neq j$,
-by definition of weights we get
-\vspace{2pt}
-\begin{equation}\label{aux_mus}
-\mu_j = \mu^*_j
-\vspace{2pt}
-\end{equation}
-(cf. Definition \ref{orst_weights_definition}).
 Since both $\sigma$, $\sigma^*$ are valid, Corollary
 \ref{orst_validity_above_prop} implies
 \vspace{5pt}
-\begin{equation*}
+\begin{equation}\label{aux_mus}
 \sum_{i \in Q} \mu_i (s_i - r_i - c_i x_i) = 0\hspace{1pt},
 \hspace{12pt}
 \sum_{i \in Q} \mu_i^* (s_i^* - r_i - c_i^* x_i) = 0\hspace{1pt}.
 \vspace{5pt}
-\end{equation*}
-Substracting terms and applying \eqref{aux_mus} yields
+\end{equation}
+\noindent
+Since $c_i = c^*_i$ for $i \neq j$,
+by definition of weights (cf. Definition \ref{orst_weights_definition}) we get
+$\mu_j = \mu^*_j\hspace{1pt}$.
+Substracting terms in \eqref{aux_mus} and applying this remark yields
 \vspace{5pt}
 \begin{equation*}
 \mu_j (s_j - s_j^* - (c_j - c_j^*)\hspace{1pt} x_j)
@@ -4021,7 +3985,7 @@ Extraction follows because $c_j - c_j^* \neq 0$.
 \subsection{Main theorem}\label{section_main_theorem}
 
 \noindent
-We proceed to the final reduction argument.
+% We proceed to the final reduction argument.
 
 \begin{thm}\label{theorem_orst_security}
 \textup{(\textsf{ORST} --
@@ -4037,15 +4001,12 @@ $\mathsf{ORST}
 	_{\hspace{1pt}\mathbb{G},\hspace{0.5pt} n,\hspace{0.5pt} t}
 	^\mathbf{\hspace{1pt}imp}
 $
-% \textup{(cf. Game \ref{orst_attack_impersonation})}
 there exists a polynomial-time
 adversary $\mathcal{A}^*$ that solves
 $\mathsf{OMDL}
 	_{\hspace{1pt}\mathbb{G},\hspace{0.5pt} t-1}
 $
-%\textup{(cf. Game \ref{omdl_attack})}
-%$
-with advantage
+with
 \vspace{5pt}
 \begin{equation}\label{orst_security_bound}
 	\mathsf{Adv}
@@ -4119,7 +4080,7 @@ $\mathcal{S}\hspace{0pt}[
 $,
 the attacks of step 3
 unfold against the sharing $(x_1, \dots, x_n;\hspace{2pt} y)$
-that is uniquely determined by the constraint
+that is determined by the constraint
 \vspace{5pt}
 \begin{equation}\label{mt_1}
 \{x_i\}_{i \in J} =
@@ -4161,87 +4122,6 @@ $z_0, z_1, \dots, z_{t-1}$ is the solution
 to the original problem instance and $\mathcal{A}^*$
 has issued at most $t-1$ distinct queries
 to the $\mathsf{DL}$ oracle.
-
-This discussion shows that $\mathcal{A}^*$ solves
-$\mathsf{OMDL}
-	_{\hspace{1pt}\mathbb{G},\hspace{0.5pt} t-1}$
-exactly if it does not abort.
-Specifically, since $w_0, w_1, \dots, w_{t-1}$
-are uniformly sampled by its challenger,
-$\mathcal{A}^*$'s advantage is equal to the probability that
-\vspace{5pt}
-\begin{equation*}
-    		(
-				\vspace{1pt}
-				b,
-				\vspace{1pt}
-				\mathsf{out}
-				\hspace{0.5pt}
-			)
-			\hspace{2pt}
-			\leftarrow
-			\hspace{2pt}
-    		\mathsf{LocalFork}_{
-				\hspace{1pt}
-    			\mathcal{S}
-    			\hspace{0pt}[
-    				\hspace{0pt}
-    				\mathcal{A}
-    				\hspace{0pt}
-    			]
-    		}
-			(
-   				\hspace{1pt}
-				y ^*,
-				\hspace{1pt}
-				x_1^*, \dots, x_{t-1}^*,
-				\hspace{1pt}
-				w_1, \dots, w_{t-1}
-				\hspace{1pt}
-   			)
-\vspace{5pt}
-\end{equation*}
-\noindent
-is a non-aborting execution when run
-with uniform input; or, in other words,
-\vspace{5pt}
-\begin{equation*}
-	\mathsf{Adv}
-		_{\hspace{1pt}\mathbb{G},\hspace{1pt} t-1}
-		^{\hspace{1pt}\mathsf{OMDL}}
-		\hspace{1pt}
-		[
-			\hspace{0.5pt}
-			\mathcal{A}^*
-			\hspace{0.5pt}
-		]
-	\hspace{2pt}
-	=
-	\mathsf{forkAcc}
-		\hspace{0.5pt}
-		(
-			\mathcal{S}
-			\hspace{0.5pt}
-			[
-				\hspace{0.5pt}
-				\mathcal{A}
-				\hspace{0.5pt}
-			]
-			\hspace{0.5pt}
-		)
-\vspace{5pt}
-\end{equation*}
-
-\noindent
-(cf. steps 1-2 and \eqref{local_forking_forkacc}).
-Let $m = q_{\mathsf{ro}} + 1$ be the number of distinct
-queries issued by $\mathcal{A}$ to $\mathcal{O}^{\mathsf{hash}}$
-in the context of
-$\mathcal{S}\hspace{0.5pt}[\hspace{0.5pt}\mathcal{A}\hspace{0.5pt}]$.
-The desired inequality follows from the
-Local Forking Lemma
-and Corollary \ref{equality_intermediate}.
-\end{proof}
 
 \begin{minipage}{0.97\textwidth}
 \begin{algorithm}[H]
@@ -4430,6 +4310,88 @@ and Corollary \ref{equality_intermediate}.
 \vspace{5pt}
 \end{minipage}
 
+\noindent
+This discussion shows that $\mathcal{A}^*$ solves
+$\mathsf{OMDL}
+	_{\hspace{1pt}\mathbb{G},\hspace{0.5pt} t-1}$
+exactly if it does not abort.
+Specifically, since $w_0, w_1, \dots, w_{t-1}$
+are uniformly sampled by its challenger,
+$\mathcal{A}^*$'s advantage is equal to the probability that
+\vspace{5pt}
+\begin{equation*}
+    		(
+				\vspace{1pt}
+				b,
+				\vspace{1pt}
+				\mathsf{out}
+				\hspace{0.5pt}
+			)
+			\hspace{2pt}
+			\leftarrow
+			\hspace{2pt}
+    		\mathsf{LocalFork}_{
+				\hspace{1pt}
+    			\mathcal{S}
+    			\hspace{0pt}[
+    				\hspace{0pt}
+    				\mathcal{A}
+    				\hspace{0pt}
+    			]
+    		}
+			(
+   				\hspace{1pt}
+				y ^*,
+				\hspace{1pt}
+				x_1^*, \dots, x_{t-1}^*,
+				\hspace{1pt}
+				w_1, \dots, w_{t-1}
+				\hspace{1pt}
+   			)
+\vspace{5pt}
+\end{equation*}
+\noindent
+is a non-aborting execution when run
+with uniform input; or, in other words,
+\vspace{5pt}
+\begin{equation*}
+	\mathsf{Adv}
+		_{\hspace{1pt}\mathbb{G},\hspace{1pt} t-1}
+		^{\hspace{1pt}\mathsf{OMDL}}
+		\hspace{1pt}
+		[
+			\hspace{0.5pt}
+			\mathcal{A}^*
+			\hspace{0.5pt}
+		]
+	\hspace{2pt}
+	=
+	\mathsf{forkAcc}
+		\hspace{0.5pt}
+		(
+			\mathcal{S}
+			\hspace{0.5pt}
+			[
+				\hspace{0.5pt}
+				\mathcal{A}
+				\hspace{0.5pt}
+			]
+			\hspace{0.5pt}
+		)
+\vspace{5pt}
+\end{equation*}
+
+\noindent
+(cf. steps 1-2 and \eqref{local_forking_forkacc}).
+Let $m = q_{\mathsf{ro}} + 1$ be the number of distinct
+queries issued by $\mathcal{A}$ to $\mathcal{O}^{\mathsf{hash}}$
+in the context of
+$\mathcal{S}\hspace{0.5pt}[\hspace{0.5pt}\mathcal{A}\hspace{0.5pt}]$.
+The desired inequality follows from the
+Local Forking Lemma
+and Corollary \ref{equality_intermediate}.
+\end{proof}
+
 \begin{rem}\label{rem_leaked_public_shares}
 (\textit{Leaked public shares})
 The adversary $\mathcal{A}$ of Game \ref{orst_attack_impersonation}
@@ -4605,7 +4567,7 @@ abstracted away the signature specific details.
 The Local Forking Lemma is a variance
 by \cite{paper_bellare_local_forking}
 which dispenses with rewinding completely,
-allowing to fork a (deterministic) process
+allowing to fork a process
 by reprogramming the oracle at a single location
 as opposed to every location after the fork.
 
