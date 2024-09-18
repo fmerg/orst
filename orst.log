@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.9.8)  17 SEP 2024 12:54
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.9.8)  18 SEP 2024 12:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1045,7 +1045,7 @@ lic/amsfonts/cm/cmti8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
 fonts/symbols/msam10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsf
 onts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
 nts/symbols/msbm7.pfb>
-Output written on orst.pdf (35 pages, 429084 bytes).
+Output written on orst.pdf (35 pages, 429097 bytes).
 PDF statistics:
  240 PDF objects out of 1000 (max. 8388607)
  152 compressed objects within 2 object streams
