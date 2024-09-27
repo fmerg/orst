@@ -2,26 +2,26 @@
 
 \bibitem{paper_bellare_local_forking}
 Mihir Bellare, Wei Dai, and Lucy Li.
-\newblock The local forking lemma and its application to deterministic
-  encryption.
+\newblock {The Local Forking Lemma and its Application to Deterministic
+  Encryption}.
 \newblock Cryptology {ePrint} Archive, Paper 2019/1017, 2019.
 
 \bibitem{paper_bellare_omdl}
 Mihir Bellare, Chanathip Namprempre, David Pointcheval, and Michael Semanko.
-\newblock The one-more-rsa-inversion problems and the security of chaum's blind
-  signature scheme.
+\newblock {The One-More-RSA-Inversion Problems and the Security of Chaum's
+  Blind Signature Scheme}.
 \newblock {\em J. Cryptology}, 16:185--215, 2003.
 
 \bibitem{paper_bellare_musig}
 Mihir Bellare and Gregory Neven.
-\newblock Multi-signatures in the plain public-key model and a general forking
-  lemma.
+\newblock {Multi-signatures in the plain public-Key model and a general forking
+  lemma}.
 \newblock In {\em Conference on Computer and Communications Security}, 2006.
 
 \bibitem{paper_bellare_palacio}
 Mihir Bellare and Adriana Palacio.
-\newblock Gq and schnorr identification schemes: Proofs of security against
-  impersonation under active and concurrent attacks.
+\newblock {GQ and Schnorr Identification Schemes: Proofs of Security against
+  Impersonation under Active and Concurrent Attacks}.
 \newblock In {\em Advances in Cryptology - CRYPTO 2002, 22nd Annual
   International Cryptology Conference, Santa Barbara, California, USA, August
   18-22, 2002, Proceedings}, volume 2442 of {\em Lecture Notes in Computer
@@ -29,18 +29,18 @@ Mihir Bellare and Adriana Palacio.
 
 \bibitem{paper_threshold_zk}
 Marcel Keller, Gert~Læssøe Mikkelsen, and Andy Rupp.
-\newblock Efficient threshold zero-knowledge with applications to user-centric
-  protocols.
+\newblock {Efficient Threshold Zero-Knowledge with Applications to User-Centric
+  Protocols}.
 \newblock Cryptology {ePrint} Archive, Paper 2012/306, 2012.
 
 \bibitem{paper_frost}
 Chelsea Komlo and Ian Goldberg.
-\newblock {FROST}: Flexible round-optimized schnorr threshold signatures.
+\newblock {FROST: Flexible Round-Optimized Schnorr Threshold Signatures}.
 \newblock Cryptology {ePrint} Archive, Paper 2020/852, 2020.
 
 \bibitem{paper_homomorphism}
 Ueli~M. Maurer.
-\newblock Unifying zero-knowledge proofs of knowledge.
+\newblock {Unifying Zero-Knowledge Proofs of Knowledge}.
 \newblock In Bart Preneel, editor, {\em Progress in Cryptology - {AFRICACRYPT}
   2009, Second International Conference on Cryptology in Africa, Gammarth,
   Tunisia, June 21-25, 2009. Proceedings}, volume 5580 of {\em Lecture Notes in
@@ -48,7 +48,7 @@ Ueli~M. Maurer.
 
 \bibitem{paper_pointcheval_stern_1}
 David Pointcheval and Jacques Stern.
-\newblock Security proofs for signature schemes.
+\newblock {Security Proofs for Signature Schemes}.
 \newblock In {\em Advances in Cryptology - EUROCRYPT '96, International
   Conference on the Theory and Application of Cryptographic Techniques,
   Saragossa, Spain, May 12-16, 1996, Proceeding}, volume 1070 of {\em Lecture
@@ -56,23 +56,23 @@ David Pointcheval and Jacques Stern.
 
 \bibitem{paper_pointcheval_stern_2}
 David Pointcheval and Jacques Stern.
-\newblock Security arguments for digital signatures and blind signatures.
+\newblock {Security Arguments for Digital Signatures and Blind Signatures}.
 \newblock {\em J. Cryptology}, 13:361--396, 2000.
 
 \bibitem{paper_schnorr}
 Claus-Peter Schnorr.
-\newblock Efficient signature generation by smart cards.
+\newblock {Efficient signature generation by smart cards}.
 \newblock {\em Journal of Cryptology}, 4:161--174, 2004.
 
 \bibitem{paper_shamir}
 Adi Shamir.
-\newblock How to share a secret.
+\newblock {How to Share a Secret}.
 \newblock {\em Commun. {ACM}}, 22(11):612--613, 1979.
 
 \bibitem{paper_stinson_strobl}
 Douglas~R. Stinson and Reto Strobl.
-\newblock Provably secure distributed schnorr signatures and a (t, n) threshold
-  scheme for implicit certificates.
+\newblock {Provably Secure Distributed Schnorr Signatures and a (t, n)
+  Threshold Scheme for Implicit Certificates}.
 \newblock In Vijay Varadharajan and Yi~Mu, editors, {\em Information Security
   and Privacy}, pages 417--434, Berlin, Heidelberg, 2001. Springer Berlin
   Heidelberg.
