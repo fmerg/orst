@@ -617,34 +617,15 @@ a highly non-trivial assumption,
 since the possibilities regarding
 roles and operations
 compose a rather broad attack surface.
-For example, a proxy that is responsible
+In the best case, a proxy that is responsible
 for advertising the public shares
 may tamper with a certain subset of them,
 causing denial-of-service whenever
 the respective shareholders engage
 in a session.
-Or, worse, the proxy colludes with
-a malicious registry delivering the group public key
-and mounts the following rogue-key attack.
-The proxy retains $y_1, \dots, y_{t-1}$, replaces
-$y_t$ with some $y_t^*$ for which it knows the discrete logarithm
-and instructs the registry to deliver
-\vspace{5pt}
-\begin{equation*}
-y^* = (y_t^*)^{\lambda_t}\prod_{i=1}^{t-1}y_i^{\lambda_i}
-\vspace{5pt}
-\end{equation*}
-in place of $y$, where $\{\lambda_i\}_{i}$
-are the interpolation coefficients for $\{1, \dots, t\}$.
-By reverse-engineering Shamir reconstruction,
-the proxy tunes $y_i^*,\hspace{2pt} t < i \le n,$
-so that the collection $y_1, \dots, y_{t-1}, y_t^*, \dots, y_n^*$
-becomes a $(n, t)$-sharing of $y^*$
-and broadcasts it to the verifiers;
-in the sequel, it can jump in and
-impersonate the $t$-th shareholder
-whenever the shareholders $1, \dots, t-1$ engage
-in a session.
+Or, worse, the malicious proxy colludes with
+a registry delivering the group public key
+and becomes capable of mounting a wide range of rogue-key attacks.
 While ad hoc threat models can obviously be formulated
 for specific use cases (e.g., for a restricted pool of
 shareholders that undergo a well specified certification process),
@@ -663,7 +644,7 @@ In this case, a security analysis becomes more tractable
 because a threat model for the initial setup can be
 formulated in terms of well defined malicious acts.
 However, an operation of this kind is not obvious to scale
-and its repetition can be cumbersome
+and its repetition can become cumbersome
 if the shareholders are not static.
 More importantly, KOSK narrows
 the applicability of the protocol severely,
@@ -680,7 +661,7 @@ this requirement is further hardened as
 meaning that the verification operation should only involve
 the group public key.
 In fact, this is a sine qua non if the desired protocol is
-to be applicable in flexible decentralized settings.
+to be applicable in unregulated decentralized settings.
 
 
 \subsection{Distributed provers in decentralized networks}\label{section_distributed_provers}
