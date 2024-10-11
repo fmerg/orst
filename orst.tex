@@ -185,20 +185,17 @@ have not been widely adopted,
 presumably due to the relevant network overhead,
 required infrastructure maintenance
 and limited interoperability chances.
-We propose an agile
+In this work, we propose an agile
 threshold identification scheme based
-on the Schnorr protocol,
-which is the native identification scheme
-in discrete-logarithm based settings.
+on the Schnorr protocol.
 Given a Shamir $(n, t)$-shared secret $x$, the proposed protocol allows
 any $t^* \ge t$ (but no less) shareholders to collectively prove
 that their secret keys combine to $x$ in the sense of interpolation
 without revealing any information beyond that.
-The protocol is non-interactive \textit{and} non-reliant
+The protocol is both non-interactive and non-reliant
 on the public shares.
 On the one side, the provers do not need to engage
-in any multi-party computation assisted by a trusted combiner;
-instead, they act independently and asynchronously,
+in any multi-party computation assisted by a trusted combiner,
 sending their proof packets to the verifier directly.
 On the other side, verification
 contains no reference to the public shares,
@@ -207,7 +204,7 @@ the group public key alone and the verifier does not need to
 trust and register the individual members' identities.
 The protocol can be cheaply adopted in
 dynamic and unregulated environments,
-where no certification processes or infrastructure support
+where no certification processes or relevant infrastructure support
 are available, and be seamlessly integrated
 with existing verifiers by means of pure software extension.
 No trusted setup is required beyond
@@ -236,10 +233,10 @@ is usually achieved my means of a trusted combiner
 who acts as group proxy.
 The shareholders engage in some distributed computation
 in order to produce a uniform commitment,
-which they subsequently use in order to generate
+which they subsequently use to generate
 ordinary proofs for their local shares.
 After aggregating
-the respective proof shares,
+the respective proof packets,
 the proxy combines them into an ordinary proof
 and forwards it to the verifier,
 who proceeds to verification like in the non-distributed case.
@@ -268,14 +265,14 @@ introduces significant network overhead upon every protocol round
 while also relying on subtle
 security assumptions regarding the involved parties.
 Note that delegating combination
-to the verifier's side makes no difference
+to the verifier makes no difference
 (except maybe for fewer trust assumptions)
-since the protocol would remain equally interactive.
+because the protocol would remain equally interactive.
 Techniques for reducing interactivity,
 e.g., pseudorandom secret sharing, do not scale beyond
 a limited number of provers and,
 most importantly, require preprocessing
-along with the relevant infrastructure maintenance.
+along with relevant infrastructure maintenance.
 While the above may not be an issue
 for operations with long-term impact
 in monitored and regulated environments
@@ -299,14 +296,14 @@ the decrypting party reconstructs the combined decryptor
 only if the attached proofs verify against the respective
 public shares, i.e., decryption is not released
 unless all proofs are individually found to be valid.
-Since every proof
-includes a Schnorr proof for the respective shareholder's key,
+Since every attached proof
+includes an  embedded Schnorr proof for the respective shareholder's key,
 one can eliminate the encryption specific details
 in order to derive a pure identification protocol.
 
 A protocol of this kind is non-interactive and requires
-no infrastructure or coordination on the provers' side,
-allowing the shareholders to act independently; however,
+no infrastructure support or real-time communication on the provers' side,
+allowing them to act independently; however,
 it requires from the decrypting party (i.e., the verifier)
 to have registered the correct public shares
 in order to be able to individually verify the attached proofs.
@@ -330,12 +327,12 @@ In this case, security becomes
 entirely dependent on the initial multi-key setup,
 which has a generally intractable attack surface
 and can only be analysed per use case.
-Any such setup is not seamless to integrate with and,
-if adopted, it comes at the cost of limited interoperability
-and infrastructure maintenance.
+Such a setup is not seamless to integrate with and,
+if adopted, it comes at the cost of limited interoperability.
 It is completely useless
-in a flexible and unregulated identification setting,
-where no trust infrastructre can be assumed to be
+in a dynamic and unregulated environment,
+where the individual shareholders may change frequently or
+no trust infrastructre can be assumed to be
 in place at all.
 
 \subsection{Contribution}\label{section_contribution}
@@ -377,7 +374,7 @@ at distributed Schnorr identification
 and argue in detail why certain solutions
 fail to meet its pragmatic needs,
 specifically with respect to
-unregulated and decentralized environments.
+dynamic, unregulated and decentralized environments.
 In Section \ref{section_orst}, we introduce the
 proposed threshold identification scheme
 and make some high-level security considerations,
@@ -412,7 +409,7 @@ A secret key is a scalar $x \in \mathbb{Z}_q$,
 with the group element $y = g ^ x$
 being its public counterpart;
 equivalently, $x = \log\hspace{1pt} y$,
-where the logarithm is taken with respect to the
+where the logarithm is taken with respect to a fixed
 generator $g$ of the underlying group structure.
 \textit{Discrete-logarithm hardness \textup{($\mathsf{DL}$)}} for
 the system under consideration
@@ -438,7 +435,7 @@ without revealing any information about the latter.
 Its original interactive variance \cite{paper_schnorr} is a sigma protocol.
 The prover samples $r \leftarrow_\$ \mathbb{Z}_q$,
 stores it for the current session
-and sends the commitment $u = g ^ r$ to the verifier.
+and sends the commitment $u \leftarrow g ^ r$ to the verifier.
 The verifier samples a challenge $c \leftarrow_\$ \mathbb{Z}_q$,
 caches it for the current session and sends it to the prover.
 Finally, the prover responds with $s = r + c\hspace{1pt}x$
@@ -493,7 +490,7 @@ amounts to the infeasibility of fabricating
 a proof that verifies against a group element
 without knowing its logarithm;
 in the zero-knowledge setting,
-this is called witness extractability
+this property is formalised as witness extractability
 under discrete-logarithm hardness.
 The protocol becomes meaningful
 only in the font of $\mathsf{DL}$ hardness,
@@ -521,7 +518,7 @@ $t^* \ge t$ (but no less) parties to collectively prove
 that they belong to the group represented by $y$
 in a zero-knowledge fashion. More accurately, involved shareholders
 should be able to prove that their shares
-combine to $x$ by means of Shamir's reconstruction formula
+combine to $x$ in the sense of interpolation
 (cf. Remark \ref{shamir_reconstruction})
 without revealing any information beyond that;
 evidently, this reduces to ordinary Schnorr identification
@@ -574,20 +571,20 @@ g ^ {s_i} = y_i ^ {c_i} u_i,
 \end{equation}
 is satisfied, where $\{\lambda_i\}_{i \in Q}$ are the
 Lagrange interpolation coefficients for $Q$.
-We refer to this protocol as the \textit{trivial approach}.
+We will refer to this protocol as the \textit{trivial approach}.
 The verifier identifies the involved parties only if
 their public shares combine to the group public key
-and they individually prove knowledge of their respective secret.
+and they individually prove knowledge of their respective secrets.
 The first condition is satisfied only if $|Q| \ge t$ (as desired)
 while the second is a method for hardening
 distributed protocols against malleability, i.e.,
 requiring from the involved parties
-to present proofs for contextual statements
+to present contextual proofs-of-knowledge
 that verify against their respective public keys.
 Note also that \eqref{intro_trivial_verification_1} is an overkill.
 If the public shares $y_1, \dots, y_n$
-must be advertised and trusted anyway
-(i.e., the verifier registers them as the fixed sharing of $y$),
+must be advertised and trusted anyway,
+i.e., the verifier registers them as the fixed sharing of $y$,
 the identifying condition reduces to
 \vspace{5pt}
 \begin{equation}\label{intro_trivial_verification_2}
@@ -618,7 +615,7 @@ The problem is that
 a trusted multi-key setup is itself
 a highly non-trivial assumption,
 since the possibilities regarding
-the roles and operations
+roles and operations
 compose a rather broad attack surface.
 For example, a proxy that is responsible
 for advertising the public shares
