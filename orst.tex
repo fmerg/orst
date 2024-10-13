@@ -3361,7 +3361,7 @@ arranging its input values appropriately
 in order to emulate $\mathcal{A}$'s execution environment.
 The values $y^*, x_1^*, \dots, x_{t-1}^*$
 will uniquely determine the attacked $(n, t)$-sharing,
-yielding the corrupted shares in the process.
+while also yielding the corrupted shares in the process.
 Similarly, $w_1, \dots, w_{t-1}$ will be used
 as the intercepted commitments.
 Next, the embedded replica of $\mathcal{A}$
@@ -3390,7 +3390,7 @@ and empty lookup tables.
 After $\mathcal{A}$ makes its attack statement,
 the virtual challenger simulates the unique sharing
 $(x_1, \dots, x_n;\hspace{2pt} y) \leftarrow D(x),
-\hspace{2pt} x \leftarrow \mathbb{Z}_q$
+\hspace{2pt} x \leftarrow _R\mathbb{Z}_q,$ that is
 subject to the constraint \eqref{shamir_sharing_constraint};
 in particular, $x_j = \log y^*$.
 It then generates commitments
@@ -3413,55 +3413,6 @@ If $\mathcal{A}$ succeeds in its impersonation attempt,
 the simulation returns $(k, (j, \sigma))$; otherwise, it
 returns $(\hspace{1pt}0, (j, \sigma))$
 to indicate failure.
-
-\begin{figure}[H]
- \centering
- \begin{overpic}[scale=0.8]{reduction.pdf}
-  \put (89,62.50) {$\mathcal{S}\hspace{1pt}[\hspace{1pt}\mathcal{A}\hspace{1pt}]$}
-  %\put (20,72.50) {$y^*, \{x_i\}_{i \in J}, \{u_i\}_{i \in J}, h_1, \dots, h_m$}
-  \put (14.75,75.6) {$y^*, x_1^*, \dots, x_{t-1}^*,
-  w_1, \dots, w_{t-1}, h_1, \dots, h_m$}
-  %\put (15.0,62.0) {$y^*, \{x_i\}_{i \in J}$}
-  \put (11.00,64.50) {$y^*, x_1^*, \dots, x_{t-1}^*$}
-  %\put (50,62.0) {$\{x_i\}_{i \in J}$}
-  \put (17.0,53.0) {$\mathcal{D}$}
-  \put (33,58.50) {$j, J$}
-  %\put (35.0,50.4) {$\{x_i\}_{i \in J},\hspace{2pt} y$}
-  \put (30.0,52.9) {$y,\hspace{1pt} \{x_i\}_{i \in J}$}
-  \put (62,57) {$\mathcal{A}$}
-  \put (59,49.5) {$\mathcal{\bar{A}}$}
-  \put (30.5,43.5) {$\{u_{i}\}_{i \in J}$}
-  \put (16.50,41.50) {$\mathsf{Zip}$}
-  \put (7,38) {$\mathcal{C}$}
-  % \put (09,37) {$\mathcal{C}$}
-  \put (85.00,47.50) {$\mathcal{O}^{\mathsf{hash}}$}
-  \put (72,52.50) {$u_i$}
-  \put (72,46.50) {$c_i$}
-  \put (86.60,34.0) {$u_i$}
-  \put (93.60,34.0) {$c_i$}
-  \put (70,27.00) {$\sigma$}
-  \put (17,25.90) {$\dots$}
-  \put (27,25.90) {$\dots$}
-  \put (37,25.90) {$\dots$}
-  \put (07,22.35) {$h_1$}
-  \put (12,22.35) {$h_2$}
-  \put (20,22.35) {$\cdots$}
-  \put (28,22.35) {$h_k$}
-  \put (33,22.35) {$\cdots$}
-  \put (38,22.35) {$h_m$}
-  \put (88.0,22.5) {$\mathcal{V}$}
-  \put (68.0,03.5) {$k$}
-  \put (71.5,03.5) {$j$}
-  \put (74.9,03.5) {$\sigma$}
- \end{overpic}
-\caption{The
-$\mathsf{ORST}
-	_{\hspace{1pt}\mathbb{G}, n, t}
-	^{\hspace{1pt}\mathbf{imp}}
-$
-simulator}
-\label{fig_attack_simulator}
-\end{figure}
 
 \begin{prop}\label{orst_simulated_impersonation_attack_prop}
 \textup{($\mathsf{ORST}
@@ -3546,6 +3497,55 @@ corresponds to $H(u_j)$
 follows directly from step 10, Algorithm \ref{alg_attack_simulator}.
 \vspace{5pt}
 \end{proof}
+
+\begin{figure}[H]
+ \centering
+ \begin{overpic}[scale=0.8]{reduction.pdf}
+  \put (89,62.50) {$\mathcal{S}\hspace{1pt}[\hspace{1pt}\mathcal{A}\hspace{1pt}]$}
+  %\put (20,72.50) {$y^*, \{x_i\}_{i \in J}, \{u_i\}_{i \in J}, h_1, \dots, h_m$}
+  \put (14.75,75.6) {$y^*, x_1^*, \dots, x_{t-1}^*,
+  w_1, \dots, w_{t-1}, h_1, \dots, h_m$}
+  %\put (15.0,62.0) {$y^*, \{x_i\}_{i \in J}$}
+  \put (11.00,64.50) {$y^*, x_1^*, \dots, x_{t-1}^*$}
+  %\put (50,62.0) {$\{x_i\}_{i \in J}$}
+  \put (17.0,53.0) {$\mathcal{D}$}
+  \put (33,58.50) {$j, J$}
+  %\put (35.0,50.4) {$\{x_i\}_{i \in J},\hspace{2pt} y$}
+  \put (30.0,52.9) {$y,\hspace{1pt} \{x_i\}_{i \in J}$}
+  \put (62,57) {$\mathcal{A}$}
+  \put (59,49.5) {$\mathcal{\bar{A}}$}
+  \put (30.5,43.5) {$\{u_{i}\}_{i \in J}$}
+  \put (16.50,41.50) {$\mathsf{Zip}$}
+  \put (7,38) {$\mathcal{C}$}
+  % \put (09,37) {$\mathcal{C}$}
+  \put (85.00,47.50) {$\mathcal{O}^{\mathsf{hash}}$}
+  \put (72,52.50) {$u_i$}
+  \put (72,46.50) {$c_i$}
+  \put (86.60,34.0) {$u_i$}
+  \put (93.60,34.0) {$c_i$}
+  \put (70,27.00) {$\sigma$}
+  \put (17,25.90) {$\dots$}
+  \put (27,25.90) {$\dots$}
+  \put (37,25.90) {$\dots$}
+  \put (07,22.35) {$h_1$}
+  \put (12,22.35) {$h_2$}
+  \put (20,22.35) {$\cdots$}
+  \put (28,22.35) {$h_k$}
+  \put (33,22.35) {$\cdots$}
+  \put (38,22.35) {$h_m$}
+  \put (88.0,22.5) {$\mathcal{V}$}
+  \put (68.0,03.5) {$k$}
+  \put (71.5,03.5) {$j$}
+  \put (74.9,03.5) {$\sigma$}
+ \end{overpic}
+\caption{The
+$\mathsf{ORST}
+	_{\hspace{1pt}\mathbb{G}, n, t}
+	^{\hspace{1pt}\mathbf{imp}}
+$
+simulator}
+\label{fig_attack_simulator}
+\end{figure}
 
 \noindent
 We denote by
@@ -3732,12 +3732,12 @@ However, when invoking
 $\mathcal{S}\hspace{0.5pt}[\hspace{0.5pt}\mathcal{A}\hspace{1pt}]$
 we predefine the hashes $h_1, \dots, h_m$
 returned by the embedded oracle in respective order,
-which allows to run again the simulator with the same hashes
+which allows to run again the simulation with the same hashes
 except for $c_j = h_k$.
 In this case, the Local Forking Lemma
 (cf. Appendix \ref{section_local_forking_lemma})
 becomes applicable in place of rewinding
-(cf. \cite{paper_bellare_musig} or Reset Lemma \cite{paper_bellare_palacio}),
+(cf. \cite{paper_bellare_musig}, or Reset Lemma \cite{paper_bellare_palacio}),
 provided that $\mathcal{A}$
 is deterministic.
 Recall that the local fork of
@@ -3791,7 +3791,6 @@ in this case, it returns the successive outputs
 $\tau \equiv (\hspace{0.5pt}j, \sigma)$
 and $\tau^* \equiv (\hspace{0.5pt}j, \sigma^*)$
 of both simulations; otherwise, it aborts.
-
 Evidently,
 $
 \mathsf{forkAcc}
@@ -3852,8 +3851,8 @@ be outputs of a non-aborting execution
 		x_1^*, \dots, x_{t-1}^*,
 		\hspace{1pt}
 		w_1, \dots, w_{t-1}
-		\hspace{1pt}
-   	)
+		\hspace{0.3pt}
+   	)\hspace{1pt}
 \vspace{5pt}
 \end{equation*}
 Then $\sigma,\hspace{1pt}\sigma^*$ are of the form
@@ -3948,7 +3947,7 @@ Extraction follows because $c_j - c_j^* \neq 0$.
 \subsection{Main theorem}\label{section_main_theorem}
 
 \noindent
-% We proceed to the final reduction argument.
+We proceed to the final reduction argument.
 
 \begin{thm}\label{theorem_orst_security}
 \textup{(\textsf{ORST} --
@@ -4025,7 +4024,7 @@ is deterministic (cf. Remark \ref{rem_deterministic_adversaries}).
 When given $w_0, \dots, w_{t-1}$
 by its challenger
 (cf. Game \ref{omdl_attack}),
-$\mathcal{A}^*$ operates as in Algorithm \ref{alg_omdl_adversary}.
+$\mathcal{A}^*$ operates as shown in Algorithm \ref{alg_omdl_adversary}.
 Note that $\mathcal{A}^*$
 aborts if the fork aborts,
 i.e., unless both impersonation attacks by $\mathcal{A}$
@@ -4086,13 +4085,10 @@ to the original problem instance and $\mathcal{A}^*$
 has issued at most $t-1$ distinct queries
 to the $\mathsf{DL}$ oracle.
 
-In short, $\mathcal{A}^*$ solves
+This discussion shows that $\mathcal{A}^*$ solves
 $\mathsf{OMDL}
 	_{\hspace{1pt}\mathbb{G},\hspace{0.5pt} t-1}$
-exactly if it does not abort.
-Since $w_0, w_1, \dots, w_{t-1}$
-are uniformly sampled by its challenger,
-$\mathcal{A}^*$'s advantage is equal to the probability that
+exactly if
 \vspace{5pt}
 \begin{equation*}
     		(
@@ -4125,7 +4121,9 @@ $\mathcal{A}^*$'s advantage is equal to the probability that
 \vspace{5pt}
 \end{equation*}
 \noindent
-of step 3 is a non-aborting execution or, in other words,
+of step 3 is a non-aborting execution.
+Since $w_0, w_1, \dots, w_{t-1}$
+are uniformly sampled by its challenger,
 \vspace{5pt}
 \begin{equation*}
 	\mathsf{Adv}
@@ -4366,7 +4364,7 @@ from the captured proof packets in the form
 or, if the shareholders store the public shares
 locally for, say, mutual verification purposes,
 an attacker who compromises the device of a shareholder
-can learn them immediately, if not erased.
+can learn them immediately if not erased.
 Still, the proof of Theorem \ref{theorem_orst_security}
 remains intact under this stronger assumption.
 Note that, if the $y_i$'s must be given to $\mathcal{\bar{A}}$
@@ -4519,7 +4517,7 @@ General Forking Lemma by \cite{paper_bellare_musig}, who
 abstracted away the signature specific details.
 The Local Forking Lemma is a variance
 by \cite{paper_bellare_local_forking}
-which dispenses with rewinding completely,
+that dispenses with rewinding completely,
 allowing to fork a process
 by reprogramming the oracle at a single location
 as opposed to every location after the fork.
@@ -4610,7 +4608,7 @@ Algorithm \ref{alg_local_fork}.
 
 \noindent
 That is, if $\mathcal{S}$ accepts, then
-the fork reruns it with the same input except
+the fork reexecutes it with the same input except
 for the $k$-th hash, which is
 afresh uniformly sampled; otherwise it aborts.
 When the second execution completes, the fork checks
@@ -4648,14 +4646,14 @@ Pr\hspace{1pt}[\hspace{1.5pt}b = 1 :
 \vspace{8pt}
 \end{equation}
 the probability that the local fork does not abort
-taken over the possible random coins of $\mathcal{S}$.
+taken over the random coins of $\mathcal{S}$.
 The local forking lemma asserts the following lower bound.
 
 \begin{lem}\label{local_forking_lemma}
 % \hspace{-8pt}
 \textup{(\textit{Local Forking Lemma}, \cite{paper_bellare_local_forking})}
 For every deterministic algorithm $\mathcal{S}$ as in
-\eqref{local_forking_s_form} issuing $m$ distinct queries
+\eqref{local_forking_s_form} issuing $m \ge 1$ distinct queries
 to a hash oracle with tape
 $[\hspace{0.75pt}h_1, \dots, h_{m}\hspace{0.75pt}]$,
 \vspace{5pt}
